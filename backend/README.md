@@ -123,16 +123,43 @@ docker run -p 8080:8080 kfood-api
 
 ## Cloud Run 배포
 
-```bash
-# 이미지 빌드 및 푸시
-gcloud builds submit --tag gcr.io/PROJECT_ID/kfood-api
+### 1. Docker 인증 설정 (최초 1회)
 
-# Cloud Run 배포
+```bash
+gcloud auth configure-docker asia-northeast3-docker.pkg.dev
+```
+
+### 2. 이미지 빌드 및 푸시
+
+```bash
+cd backend
+gcloud builds submit --tag asia-northeast3-docker.pkg.dev/k-food-export-passport-ai/kfood-repo/kfood-api
+```
+
+### 3. Cloud Run 배포
+
+```bash
 gcloud run deploy kfood-api \
-  --image gcr.io/PROJECT_ID/kfood-api \
-  --platform managed \
+  --image asia-northeast3-docker.pkg.dev/k-food-export-passport-ai/kfood-repo/kfood-api \
   --region asia-northeast3 \
+  --platform managed \
+  --min-instances 0 \
+  --max-instances 1 \
+  --memory 1Gi \
+  --cpu 1 \
+  --timeout 300 \
   --allow-unauthenticated
+```
+
+### 4. 배포 확인
+
+```bash
+# 이미지 목록 확인
+gcloud artifacts docker images list \
+  asia-northeast3-docker.pkg.dev/k-food-export-passport-ai/kfood-repo
+
+# 서비스 상태 확인
+gcloud run services describe kfood-api --region asia-northeast3
 ```
 
 ---
