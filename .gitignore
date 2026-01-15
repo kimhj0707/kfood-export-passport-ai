@@ -1,0 +1,52 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+
+# Environment
+.env
+.env.local
+.env.*
+!.env.example
+env.yaml
+*.yaml
+!docker-compose.yaml
+
+# Credentials / Secrets
+*.key
+*.pem
+*credentials*.json
+*secret*
+service-account*.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Node
+node_modules/
+dist/
+.vercel/
+
+# Database
+*.db
+
+# Claude/AI
+.claude/
+
+# Build
+*.egg-info/
+build/

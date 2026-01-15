@@ -1,0 +1,18 @@
+.venv              # 로컬 가상환경 → 컨테이너에 절대 필요 없음 ✅
+__pycache__        # 파이썬 캐시 제거 ✅
+*.pyc
+*.pyo
+*.pyd
+.env               # 실제 키 유출 방지 (필수) 🔐✅
+.env.*             # env 변형 파일 전체 차단 🔐✅
+*.log              # 로그 불필요 + 용량 절감 ✅
+.DS_Store          # macOS 쓰레기 파일 제거 ✅
+.git               # git 메타데이터 제외 (이미지 가벼워짐) ✅
+.gitignore         # 불필요 (있어도 문제는 없음) ✅
+*.claude*          # AI 툴 설정/캐시 제외 👍
+*.gemini*          # AI 툴 설정/캐시 제외 👍
+*.md           # README 등 문서 제외 (용량 절감)
+tests/         # 테스트 폴더 있으면 제외
+k-food-수출-패스포트-ai/   # 프론트엔드 폴더 제외
+node_modules/              # node 패키지 제외
+data/                      # SQLite DB 파일 제외

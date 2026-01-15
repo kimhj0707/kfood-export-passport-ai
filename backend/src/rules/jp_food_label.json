@@ -1,0 +1,35 @@
+{
+  "country": "JP",
+  "regulation": "일본 식품표시법 (Food Labeling Act)",
+  "major_allergens": [
+    {
+      "name": "小麦 (Wheat)",
+      "keywords": ["밀", "wheat", "小麦", "글루텐", "gluten"]
+    },
+    {
+      "name": "卵 (Egg)",
+      "keywords": ["계란", "달걀", "egg", "卵", "란"]
+    },
+    {
+      "name": "乳 (Milk)",
+      "keywords": ["우유", "milk", "乳", "유제품", "lactose"]
+    },
+    {
+      "name": "そば (Buckwheat)",
+      "keywords": ["메밀", "buckwheat", "そば", "소바"]
+    },
+    {
+      "name": "落花生 (Peanut)",
+      "keywords": ["땅콩", "peanut", "落花生", "피넛"]
+    },
+    {
+      "name": "えび (Shrimp)",
+      "keywords": ["새우", "shrimp", "えび", "에비"]
+    },
+    {
+      "name": "かに (Crab)",
+      "keywords": ["게", "crab", "かに", "카니"]
+    }
+  ],
+  "required_labels": ["원재료명", "내용량", "유통기한", "보존방법", "제조자"]
+}

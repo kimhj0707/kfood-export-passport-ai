@@ -1,0 +1,38 @@
+{
+  "country": "US",
+  "regulation": "FDA Food Allergen Labeling (FALCPA)",
+  "major_allergens": [
+    {
+      "name": "Milk",
+      "keywords": ["milk", "우유", "lactose", "유당", "casein", "카제인", "whey", "유청", "cream", "크림", "butter", "버터", "cheese", "치즈"]
+    },
+    {
+      "name": "Eggs",
+      "keywords": ["egg", "계란", "달걀", "albumin", "알부민", "mayonnaise", "마요네즈"]
+    },
+    {
+      "name": "Fish",
+      "keywords": ["fish", "생선", "cod", "대구", "salmon", "연어", "tuna", "참치", "anchovy", "멸치"]
+    },
+    {
+      "name": "Shellfish",
+      "keywords": ["shellfish", "갑각류", "shrimp", "새우", "crab", "게", "lobster", "랍스터", "crawfish", "가재"]
+    },
+    {
+      "name": "Tree Nuts",
+      "keywords": ["almond", "아몬드", "cashew", "캐슈", "walnut", "호두", "pecan", "피칸", "pistachio", "피스타치오", "macadamia", "마카다미아", "hazelnut", "헤이즐넛"]
+    },
+    {
+      "name": "Peanuts",
+      "keywords": ["peanut", "땅콩", "groundnut"]
+    },
+    {
+      "name": "Wheat",
+      "keywords": ["wheat", "밀", "flour", "밀가루", "gluten", "글루텐", "semolina", "세몰리나"]
+    },
+    {
+      "name": "Soybeans",
+      "keywords": ["soy", "대두", "콩", "soybean", "tofu", "두부", "edamame", "에다마메", "miso", "된장"]
+    }
+  ]
+}

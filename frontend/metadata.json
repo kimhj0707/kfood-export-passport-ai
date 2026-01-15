@@ -1,0 +1,7 @@
+{
+  "name": "K-Food 수출 패스포트 AI",
+  "description": "식품 라벨 이미지를 분석하여 국가별 수출 규정 검토 및 리포트를 제공하는 전문가용 서비스",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

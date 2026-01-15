@@ -1,0 +1,31 @@
+{
+  "country": "VN",
+  "regulation": "베트남 식품안전법 (Decree 43/2017/ND-CP)",
+  "major_allergens": [
+    {
+      "name": "Gluten",
+      "keywords": ["밀", "글루텐", "wheat", "gluten", "lúa mì"]
+    },
+    {
+      "name": "Trứng (Egg)",
+      "keywords": ["계란", "달걀", "egg", "trứng"]
+    },
+    {
+      "name": "Sữa (Milk)",
+      "keywords": ["우유", "milk", "sữa", "유제품"]
+    },
+    {
+      "name": "Đậu phộng (Peanut)",
+      "keywords": ["땅콩", "peanut", "đậu phộng", "lạc"]
+    },
+    {
+      "name": "Đậu nành (Soy)",
+      "keywords": ["대두", "콩", "soy", "đậu nành"]
+    },
+    {
+      "name": "Hải sản (Seafood)",
+      "keywords": ["새우", "게", "오징어", "seafood", "hải sản", "tôm", "cua"]
+    }
+  ],
+  "required_labels": ["tên sản phẩm", "thành phần", "khối lượng", "ngày sản xuất", "hạn sử dụng"]
+}
