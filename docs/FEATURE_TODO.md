@@ -1,7 +1,7 @@
 # K-Food Export Passport AI - 기능 추가 계획
 
 **작성일**: 2026-01-15
-**상태**: 계획 수립 완료
+**상태**: Sprint 1 완료
 
 ---
 
@@ -21,64 +21,45 @@
 | UI | 랜딩 페이지 | ✅ 완성 |
 | UI | 분석 페이지 | ✅ 완성 |
 | UI | 결과 페이지 | ✅ 완성 |
-| UI | 히스토리 페이지 | ⚠️ 페이지네이션 미구현 |
+| UI | 히스토리 페이지 | ✅ 완성 (페이지네이션, 삭제 포함) |
 
 ---
 
-## 즉시 구현 예정 (Sprint 1)
+## Sprint 1 (완료)
 
-### 1. 히스토리 페이지네이션
+### 1. 히스토리 페이지네이션 ✅
 
-**현재 상태**: 백엔드 API 준비됨, 프론트엔드 UI 버튼만 있음
+**완료일**: 2026-01-15
 
-**작업 내용**:
-- [ ] `HistoryPage.tsx`에서 페이지 상태 관리
-- [ ] 이전/다음 버튼 클릭 시 offset 변경
-- [ ] `api.ts`의 `getReportHistory()`에 offset/limit 파라미터 추가
-- [ ] 페이지 번호 표시
-
-**관련 파일**:
-- `frontend/pages/HistoryPage.tsx`
-- `frontend/services/api.ts`
-
-**예상 소요**: 1시간
+**구현 내용**:
+- [x] `HistoryPage.tsx`에서 페이지 상태 관리
+- [x] 이전/다음 버튼 클릭 시 offset 변경
+- [x] `api.ts`의 `getHistory()`에 offset/limit 파라미터 추가
+- [x] 페이지 번호 및 총 항목 수 표시
 
 ---
 
-### 2. 이미지 미리보기
+### 2. 이미지 미리보기 ✅
 
-**현재 상태**: 이미지 업로드 후 확인 불가
+**완료일**: 2026-01-15
 
-**작업 내용**:
-- [ ] `AnalyzePage.tsx`에 이미지 미리보기 영역 추가
-- [ ] FileReader API로 업로드된 이미지 표시
-- [ ] 이미지 삭제/교체 버튼 추가
-- [ ] 이미지 크기 제한 안내 (10MB)
-
-**관련 파일**:
-- `frontend/pages/AnalyzePage.tsx`
-
-**예상 소요**: 30분
+**구현 내용**:
+- [x] `AnalyzePage.tsx`에 이미지 미리보기 영역 추가
+- [x] FileReader API로 업로드된 이미지 표시
+- [x] 이미지 삭제/교체 버튼 추가 (X 버튼)
+- [x] 이미지 크기 제한 (10MB) 및 검증
 
 ---
 
-### 3. 리포트 삭제 버튼
+### 3. 리포트 삭제 버튼 ✅
 
-**현재 상태**: 백엔드 DELETE API 있음, 프론트엔드 UI 없음
+**완료일**: 2026-01-15
 
-**작업 내용**:
-- [ ] `HistoryPage.tsx`에 삭제 버튼 추가
-- [ ] `ReportPage.tsx`에 삭제 버튼 추가
-- [ ] 삭제 확인 다이얼로그
-- [ ] 삭제 후 히스토리 페이지로 리다이렉트
-- [ ] `api.ts`에 `deleteReport()` 함수 추가
-
-**관련 파일**:
-- `frontend/pages/HistoryPage.tsx`
-- `frontend/pages/ReportPage.tsx`
-- `frontend/services/api.ts`
-
-**예상 소요**: 1시간
+**구현 내용**:
+- [x] `HistoryPage.tsx`에 삭제 버튼 추가
+- [x] 삭제 확인 다이얼로그 (confirm)
+- [x] 삭제 후 현재 페이지 새로고침
+- [x] `api.ts`에 `deleteReport()` 함수 추가
 
 ---
 
@@ -170,10 +151,10 @@
 | API | 프론트엔드 | 상태 |
 |-----|-----------|------|
 | POST `/api/analyze` | AnalyzePage | ✅ 연동됨 |
-| GET `/api/reports` | HistoryPage | ⚠️ 페이지네이션 미연동 |
+| GET `/api/reports` | HistoryPage | ✅ 연동됨 (페이지네이션 포함) |
 | GET `/api/reports/{id}` | ReportPage | ✅ 연동됨 |
 | GET `/api/reports/{id}/pdf` | ReportPage | ✅ 연동됨 |
-| DELETE `/api/reports/{id}` | - | ❌ UI 없음 |
+| DELETE `/api/reports/{id}` | HistoryPage | ✅ 연동됨 |
 
 ---
 
@@ -201,3 +182,4 @@ VITE_API_BASE_URL=https://kfood-api-233469550454.asia-northeast3.run.app
 | 날짜 | 내용 |
 |------|------|
 | 2026-01-15 | 최초 작성, Sprint 1 계획 수립 |
+| 2026-01-15 | Sprint 1 완료: 페이지네이션, 이미지 미리보기, 삭제 버튼 |
