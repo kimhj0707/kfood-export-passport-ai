@@ -1,19 +1,43 @@
 
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { analyzeLabel } from '../services/api';
 
 const AnalyzePage: React.FC = () => {
   const navigate = useNavigate();
   const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [country, setCountry] = useState('US');
   const [ocrEngine, setOcrEngine] = useState('google');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+
+      // 파일 크기 체크 (10MB)
+      if (selectedFile.size > 10 * 1024 * 1024) {
+        alert('파일 크기는 10MB를 초과할 수 없습니다.');
+        return;
+      }
+
+      setFile(selectedFile);
+
+      // 이미지 미리보기 생성
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result as string);
+      };
+      reader.readAsDataURL(selectedFile);
     }
+  };
+
+  const handleRemoveFile = () => {
+    setFile(null);
+    setPreview(null);
+    // input 초기화
+    const input = document.getElementById('fileInput') as HTMLInputElement;
+    if (input) input.value = '';
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,28 +71,55 @@ const AnalyzePage: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <label className="text-sm font-bold text-[#121617]">라벨 이미지 업로드 (JPG, PNG)</label>
-                <div 
-                  className={`relative group flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-xl transition-colors cursor-pointer 
-                    ${file ? 'border-primary bg-primary/5' : 'border-[#dde2e4] bg-gray-50 hover:bg-gray-100'}`}
-                  onClick={() => document.getElementById('fileInput')?.click()}
-                >
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <span className={`material-symbols-outlined text-4xl mb-3 ${file ? 'text-primary' : 'text-gray-400'}`}>
-                      {file ? 'check_circle' : 'cloud_upload'}
-                    </span>
-                    <p className="mb-2 text-sm text-[#121617] font-medium">
-                      {file ? file.name : '클릭하거나 파일을 여기로 끌어다 놓으세요'}
-                    </p>
-                    <p className="text-xs text-[#677c83]">최대 파일 크기: 10MB</p>
+
+                {/* 이미지 미리보기 */}
+                {preview ? (
+                  <div className="relative">
+                    <div className="relative w-full rounded-xl overflow-hidden border-2 border-primary bg-gray-50">
+                      <img
+                        src={preview}
+                        alt="미리보기"
+                        className="w-full max-h-64 object-contain"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
+                        <p className="text-white text-sm font-medium truncate">{file?.name}</p>
+                        <p className="text-white/70 text-xs">
+                          {file && (file.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveFile}
+                      className="absolute top-2 right-2 p-2 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-sm">close</span>
+                    </button>
                   </div>
-                  <input 
-                    id="fileInput"
-                    accept="image/jpeg,image/png" 
-                    className="hidden" 
-                    type="file"
-                    onChange={handleFileChange}
-                  />
-                </div>
+                ) : (
+                  <div
+                    className="relative group flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-xl transition-colors cursor-pointer border-[#dde2e4] bg-gray-50 hover:bg-gray-100 hover:border-primary"
+                    onClick={() => document.getElementById('fileInput')?.click()}
+                  >
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <span className="material-symbols-outlined text-4xl mb-3 text-gray-400">
+                        cloud_upload
+                      </span>
+                      <p className="mb-2 text-sm text-[#121617] font-medium">
+                        클릭하거나 파일을 여기로 끌어다 놓으세요
+                      </p>
+                      <p className="text-xs text-[#677c83]">최대 파일 크기: 10MB</p>
+                    </div>
+                  </div>
+                )}
+
+                <input
+                  id="fileInput"
+                  accept="image/jpeg,image/png"
+                  className="hidden"
+                  type="file"
+                  onChange={handleFileChange}
+                />
               </div>
 
               <div className="space-y-2">
@@ -77,7 +128,7 @@ const AnalyzePage: React.FC = () => {
                   수출 대상 국가
                 </label>
                 <div className="relative">
-                  <select 
+                  <select
                     id="country"
                     value={country}
                     onChange={(e) => setCountry(e.target.value)}
@@ -99,7 +150,7 @@ const AnalyzePage: React.FC = () => {
                   OCR 엔진 선택
                 </label>
                 <div className="relative">
-                  <select 
+                  <select
                     id="ocr"
                     value={ocrEngine}
                     onChange={(e) => setOcrEngine(e.target.value)}
@@ -115,7 +166,7 @@ const AnalyzePage: React.FC = () => {
               </div>
 
               <div className="pt-4">
-                <button 
+                <button
                   disabled={isAnalyzing || !file}
                   className={`w-full flex items-center justify-center rounded-lg h-14 text-white text-lg font-bold shadow-lg transition-all active:scale-[0.98]
                     ${isAnalyzing || !file ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-opacity-90'}`}

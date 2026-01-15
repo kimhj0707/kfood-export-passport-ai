@@ -1,20 +1,60 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getHistory } from '../services/api';
+import { getHistory, deleteReport } from '../services/api';
 import { AnalysisReport } from '../types';
+
+const ITEMS_PER_PAGE = 10;
 
 const HistoryPage: React.FC = () => {
   const navigate = useNavigate();
   const [history, setHistory] = useState<AnalysisReport[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [deleting, setDeleting] = useState<string | null>(null);
+
+  const loadHistory = async (page: number) => {
+    setLoading(true);
+    const offset = page * ITEMS_PER_PAGE;
+    const result = await getHistory(ITEMS_PER_PAGE, offset);
+    setHistory(result.reports);
+    setTotal(result.total);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    getHistory().then(data => {
-      setHistory(data);
-      setLoading(false);
-    });
-  }, []);
+    loadHistory(currentPage);
+  }, [currentPage]);
+
+  const handlePrevPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    const maxPage = Math.ceil(total / ITEMS_PER_PAGE) - 1;
+    if (currentPage < maxPage) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm('이 분석 결과를 삭제하시겠습니까?')) return;
+
+    setDeleting(id);
+    const success = await deleteReport(id);
+    setDeleting(null);
+
+    if (success) {
+      // 현재 페이지 다시 로드
+      loadHistory(currentPage);
+    } else {
+      alert('삭제에 실패했습니다.');
+    }
+  };
 
   const countryFlags: Record<string, string> = {
     'US': '🇺🇸',
@@ -27,6 +67,10 @@ const HistoryPage: React.FC = () => {
     'JP': '일본 (Japan)',
     'VN': '베트남 (Vietnam)'
   };
+
+  const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
+  const hasPrev = currentPage > 0;
+  const hasNext = currentPage < totalPages - 1;
 
   return (
     <div className="flex flex-col flex-1 bg-bg-light min-h-[calc(100vh-160px)]">
@@ -45,7 +89,7 @@ const HistoryPage: React.FC = () => {
                     <th className="px-6 py-4 text-sm font-bold text-gray-700">분석 일시</th>
                     <th className="px-6 py-4 text-sm font-bold text-gray-700">대상 국가</th>
                     <th className="px-6 py-4 text-sm font-bold text-gray-700">사용 엔진</th>
-                    <th className="px-6 py-4 text-sm font-bold text-gray-700 text-right">상세 보기</th>
+                    <th className="px-6 py-4 text-sm font-bold text-gray-700 text-right">작업</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#dde2e4]">
@@ -69,12 +113,25 @@ const HistoryPage: React.FC = () => {
                           </span>
                         </td>
                         <td className="px-6 py-5 text-right">
-                          <button 
-                            onClick={() => navigate(`/reports/${item.id}`)}
-                            className="inline-flex items-center justify-center px-4 py-2 border border-[#dde2e4] rounded-lg text-sm font-semibold text-primary hover:bg-primary/5 transition-colors"
-                          >
-                            상세 보기
-                          </button>
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => navigate(`/reports/${item.id}`)}
+                              className="inline-flex items-center justify-center px-4 py-2 border border-[#dde2e4] rounded-lg text-sm font-semibold text-primary hover:bg-primary/5 transition-colors"
+                            >
+                              상세 보기
+                            </button>
+                            <button
+                              onClick={(e) => handleDelete(item.id, e)}
+                              disabled={deleting === item.id}
+                              className="inline-flex items-center justify-center px-3 py-2 border border-red-200 rounded-lg text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
+                            >
+                              {deleting === item.id ? (
+                                <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                              ) : (
+                                <span className="material-symbols-outlined text-sm">delete</span>
+                              )}
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -87,12 +144,23 @@ const HistoryPage: React.FC = () => {
               </table>
             </div>
             <div className="px-6 py-4 border-t border-[#dde2e4] flex items-center justify-between">
-              <span className="text-sm text-[#677c83]">총 {history.length}개의 분석 결과가 있습니다.</span>
+              <span className="text-sm text-[#677c83]">
+                총 {total}개 중 {currentPage * ITEMS_PER_PAGE + 1}-{Math.min((currentPage + 1) * ITEMS_PER_PAGE, total)}개 표시
+                {totalPages > 1 && ` (${currentPage + 1}/${totalPages} 페이지)`}
+              </span>
               <div className="flex gap-2">
-                <button className="p-2 border border-[#dde2e4] rounded hover:bg-gray-50 text-gray-400" disabled>
+                <button
+                  onClick={handlePrevPage}
+                  disabled={!hasPrev}
+                  className={`p-2 border border-[#dde2e4] rounded hover:bg-gray-50 ${hasPrev ? 'text-gray-700' : 'text-gray-300 cursor-not-allowed'}`}
+                >
                   <span className="material-symbols-outlined text-sm">chevron_left</span>
                 </button>
-                <button className="p-2 border border-[#dde2e4] rounded hover:bg-gray-50 text-gray-400" disabled>
+                <button
+                  onClick={handleNextPage}
+                  disabled={!hasNext}
+                  className={`p-2 border border-[#dde2e4] rounded hover:bg-gray-50 ${hasNext ? 'text-gray-700' : 'text-gray-300 cursor-not-allowed'}`}
+                >
                   <span className="material-symbols-outlined text-sm">chevron_right</span>
                 </button>
               </div>

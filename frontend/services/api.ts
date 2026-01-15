@@ -175,21 +175,47 @@ export const getReport = async (id: string): Promise<AnalysisReport | undefined>
 };
 
 /**
- * 리포트 히스토리 목록 조회
+ * 리포트 히스토리 목록 조회 (페이지네이션 지원)
  */
-export const getHistory = async (limit: number = 10): Promise<AnalysisReport[]> => {
+export const getHistory = async (
+  limit: number = 10,
+  offset: number = 0
+): Promise<{ reports: AnalysisReport[]; total: number }> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/reports?limit=${limit}`);
+    const response = await fetch(`${API_BASE_URL}/api/reports?limit=${limit}&offset=${offset}`);
 
     if (!response.ok) {
       throw new Error('히스토리 조회 실패');
     }
 
     const data: ApiReportListResponse = await response.json();
-    return data.reports.map(convertReportListItem);
+    return {
+      reports: data.reports.map(convertReportListItem),
+      total: data.total || data.reports.length,
+    };
   } catch (error) {
     console.error('getHistory error:', error);
-    return [];
+    return { reports: [], total: 0 };
+  }
+};
+
+/**
+ * 리포트 삭제
+ */
+export const deleteReport = async (id: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/reports/${id}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error('리포트 삭제 실패');
+    }
+
+    return true;
+  } catch (error) {
+    console.error('deleteReport error:', error);
+    return false;
   }
 };
 
