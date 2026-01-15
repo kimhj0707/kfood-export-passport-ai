@@ -2,9 +2,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { analyzeLabel } from '../services/api';
+import { useToast } from '../contexts/ToastContext';
+import AnalysisProgress from '../components/AnalysisProgress';
 
 const AnalyzePage: React.FC = () => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [country, setCountry] = useState('US');
@@ -17,7 +20,7 @@ const AnalyzePage: React.FC = () => {
 
       // 파일 크기 체크 (10MB)
       if (selectedFile.size > 10 * 1024 * 1024) {
-        alert('파일 크기는 10MB를 초과할 수 없습니다.');
+        showToast('error', '파일 크기는 10MB를 초과할 수 없습니다.');
         return;
       }
 
@@ -43,16 +46,18 @@ const AnalyzePage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) {
-      alert('분석할 이미지를 업로드해주세요.');
+      showToast('warning', '분석할 이미지를 업로드해주세요.');
       return;
     }
 
     setIsAnalyzing(true);
     try {
       const reportId = await analyzeLabel(file, country, ocrEngine);
+      showToast('success', '분석이 완료되었습니다!');
       navigate(`/reports/${reportId}`);
     } catch (error) {
-      alert('분석 중 오류가 발생했습니다.');
+      const message = error instanceof Error ? error.message : '분석 중 오류가 발생했습니다.';
+      showToast('error', message);
     } finally {
       setIsAnalyzing(false);
     }
@@ -203,6 +208,8 @@ const AnalyzePage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <AnalysisProgress isOpen={isAnalyzing} />
     </div>
   );
 };

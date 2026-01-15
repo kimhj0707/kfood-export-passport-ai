@@ -3,24 +3,34 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getHistory, deleteReport } from '../services/api';
 import { AnalysisReport } from '../types';
+import { useToast } from '../contexts/ToastContext';
 
 const ITEMS_PER_PAGE = 10;
 
 const HistoryPage: React.FC = () => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [history, setHistory] = useState<AnalysisReport[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [total, setTotal] = useState(0);
   const [deleting, setDeleting] = useState<string | null>(null);
 
   const loadHistory = async (page: number) => {
     setLoading(true);
-    const offset = page * ITEMS_PER_PAGE;
-    const result = await getHistory(ITEMS_PER_PAGE, offset);
-    setHistory(result.reports);
-    setTotal(result.total);
-    setLoading(false);
+    setLoadError(false);
+    try {
+      const offset = page * ITEMS_PER_PAGE;
+      const result = await getHistory(ITEMS_PER_PAGE, offset);
+      setHistory(result.reports);
+      setTotal(result.total);
+    } catch {
+      setLoadError(true);
+      showToast('error', '데이터를 불러오는 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -45,14 +55,18 @@ const HistoryPage: React.FC = () => {
     if (!confirm('이 분석 결과를 삭제하시겠습니까?')) return;
 
     setDeleting(id);
-    const success = await deleteReport(id);
-    setDeleting(null);
-
-    if (success) {
-      // 현재 페이지 다시 로드
-      loadHistory(currentPage);
-    } else {
-      alert('삭제에 실패했습니다.');
+    try {
+      const success = await deleteReport(id);
+      if (success) {
+        showToast('success', '분석 결과가 삭제되었습니다.');
+        loadHistory(currentPage);
+      } else {
+        showToast('error', '삭제에 실패했습니다.');
+      }
+    } catch {
+      showToast('error', '삭제 중 오류가 발생했습니다.');
+    } finally {
+      setDeleting(null);
     }
   };
 
@@ -95,7 +109,28 @@ const HistoryPage: React.FC = () => {
                 <tbody className="divide-y divide-[#dde2e4]">
                   {loading ? (
                     <tr>
-                      <td colSpan={4} className="px-6 py-10 text-center text-gray-400">데이터를 불러오는 중...</td>
+                      <td colSpan={4} className="px-6 py-10 text-center text-gray-400">
+                        <div className="flex items-center justify-center gap-2">
+                          <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                          데이터를 불러오는 중...
+                        </div>
+                      </td>
+                    </tr>
+                  ) : loadError ? (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-10 text-center">
+                        <div className="flex flex-col items-center gap-3">
+                          <span className="material-symbols-outlined text-3xl text-red-400">cloud_off</span>
+                          <p className="text-gray-500">데이터를 불러오는 중 오류가 발생했습니다.</p>
+                          <button
+                            onClick={() => loadHistory(currentPage)}
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                          >
+                            <span className="material-symbols-outlined text-sm">refresh</span>
+                            다시 시도
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ) : history.length > 0 ? (
                     history.map((item) => (

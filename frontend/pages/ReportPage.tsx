@@ -1,30 +1,95 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getReport, downloadPdf } from '../services/api';
 import { AnalysisReport } from '../types';
+import { useToast } from '../contexts/ToastContext';
 
 const ReportPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [report, setReport] = useState<AnalysisReport | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const loadReport = useCallback(async () => {
+    if (!id) return;
+    setLoading(true);
+    setError(false);
+    try {
+      const data = await getReport(id);
+      if (data) {
+        setReport(data);
+      } else {
+        setError(true);
+      }
+    } catch {
+      setError(true);
+      showToast('error', '리포트를 불러오는 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  }, [id, showToast]);
 
   useEffect(() => {
-    if (id) {
-      getReport(id).then(data => {
-        if (data) setReport(data);
-        setLoading(false);
-      });
+    loadReport();
+  }, [loadReport]);
+
+  const handleDownloadPdf = () => {
+    downloadPdf(report!.id);
+    showToast('info', 'PDF 다운로드가 시작됩니다.');
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('success', '링크가 클립보드에 복사되었습니다!');
+    } catch {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showToast('success', '링크가 클립보드에 복사되었습니다!');
     }
-  }, [id]);
+  };
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">로딩 중...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-3">
+        <span className="material-symbols-outlined text-4xl text-primary animate-spin">progress_activity</span>
+        <p className="text-gray-500">리포트를 불러오는 중...</p>
+      </div>
+    );
   }
 
-  if (!report) {
-    return <div className="flex items-center justify-center min-h-screen">리포트를 찾을 수 없습니다.</div>;
+  if (error || !report) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <span className="material-symbols-outlined text-5xl text-red-400">error_outline</span>
+        <p className="text-gray-600 text-lg">리포트를 찾을 수 없습니다.</p>
+        <div className="flex gap-3">
+          <button
+            onClick={() => navigate('/history')}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            목록으로 돌아가기
+          </button>
+          <button
+            onClick={loadReport}
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
+          >
+            <span className="material-symbols-outlined text-sm">refresh</span>
+            다시 시도
+          </button>
+        </div>
+      </div>
+    );
   }
 
   const countryLabels: Record<string, string> = {
@@ -51,16 +116,30 @@ const ReportPage: React.FC = () => {
               </span>
             </div>
           </div>
-          <div className="flex gap-3 no-print">
-            <button 
+          <div className="flex flex-wrap gap-3 no-print">
+            <button
               onClick={() => navigate('/history')}
               className="flex items-center justify-center gap-2 rounded-lg h-11 px-6 bg-white border border-[#dde2e4] text-[#121617] font-bold text-sm hover:bg-gray-50 transition-colors"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
-              <span>목록으로 돌아가기</span>
+              <span>목록으로</span>
             </button>
-            <button 
-              onClick={() => downloadPdf(report.id)}
+            <button
+              onClick={() => navigate('/analyze')}
+              className="flex items-center justify-center gap-2 rounded-lg h-11 px-6 bg-white border border-[#dde2e4] text-[#121617] font-bold text-sm hover:bg-gray-50 transition-colors"
+            >
+              <span className="material-symbols-outlined text-lg">refresh</span>
+              <span>새 분석</span>
+            </button>
+            <button
+              onClick={handleShare}
+              className="flex items-center justify-center gap-2 rounded-lg h-11 px-6 bg-white border border-[#dde2e4] text-[#121617] font-bold text-sm hover:bg-gray-50 transition-colors"
+            >
+              <span className="material-symbols-outlined text-lg">share</span>
+              <span>공유</span>
+            </button>
+            <button
+              onClick={handleDownloadPdf}
               className="flex items-center justify-center gap-2 rounded-lg h-11 px-6 bg-primary text-white font-bold text-sm shadow-md hover:bg-opacity-90 transition-all"
             >
               <span className="material-symbols-outlined text-lg">file_download</span>
