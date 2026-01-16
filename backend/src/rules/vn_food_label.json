@@ -4,28 +4,128 @@
   "major_allergens": [
     {
       "name": "Gluten",
-      "keywords": ["밀", "글루텐", "wheat", "gluten", "lúa mì"]
+      "keywords": [
+        "밀",
+        "글루텐",
+        "wheat",
+        "gluten",
+        "lúa mì"
+      ],
+      "details": {
+        "regulation": "Decree No. 43/2017/ND-CP on Goods Labels, Circular No. 05/2019/TT-BYT & Circular No. 11/2021/TT-BYT on Nutritional Labeling",
+        "article": "Decree 43 Article 10 (Mandatory contents of goods labels); Circular 05/2019/TT-BYT Article 5 (Allergen information is voluntarily declared)",
+        "reason": "While not explicitly mandated as major allergens, common allergens are generally recommended for declaration on food labels as part of food safety information to protect sensitive consumers.",
+        "authority": "Ministry of Health (BYT)",
+        "as_of": "2021 (Reflecting Circular No. 11/2021/TT-BYT)",
+        "note": "Vietnam does not have a comprehensive list of 'major food allergens' with mandatory labeling similar to the US or Japan. Allergen information is often provided voluntarily or as part of general food safety and nutritional labeling guidelines. Future regulations may introduce a mandatory list.",
+        "source_type": "official_law",
+        "confidence_level": "high"
+      }
     },
     {
       "name": "Trứng (Egg)",
-      "keywords": ["계란", "달걀", "egg", "trứng"]
+      "keywords": [
+        "계란",
+        "달걀",
+        "egg",
+        "trứng"
+      ],
+      "details": {
+        "regulation": "Decree No. 43/2017/ND-CP on Goods Labels, Circular No. 05/2019/TT-BYT & Circular No. 11/2021/TT-BYT on Nutritional Labeling",
+        "article": "Decree 43 Article 10 (Mandatory contents of goods labels); Circular 05/2019/TT-BYT Article 5 (Allergen information is voluntarily declared)",
+        "reason": "While not explicitly mandated as major allergens, common allergens are generally recommended for declaration on food labels as part of food safety information to protect sensitive consumers.",
+        "authority": "Ministry of Health (BYT)",
+        "as_of": "2021 (Reflecting Circular No. 11/2021/TT-BYT)",
+        "note": "Vietnam does not have a comprehensive list of 'major food allergens' with mandatory labeling similar to the US or Japan. Allergen information is often provided voluntarily or as part of general food safety and nutritional labeling guidelines. Future regulations may introduce a mandatory list.",
+        "source_type": "official_law",
+        "confidence_level": "high"
+      }
     },
     {
       "name": "Sữa (Milk)",
-      "keywords": ["우유", "milk", "sữa", "유제품"]
+      "keywords": [
+        "우유",
+        "milk",
+        "sữa",
+        "유제품"
+      ],
+      "details": {
+        "regulation": "Decree No. 43/2017/ND-CP on Goods Labels, Circular No. 05/2019/TT-BYT & Circular No. 11/2021/TT-BYT on Nutritional Labeling",
+        "article": "Decree 43 Article 10 (Mandatory contents of goods labels); Circular 05/2019/TT-BYT Article 5 (Allergen information is voluntarily declared)",
+        "reason": "While not explicitly mandated as major allergens, common allergens are generally recommended for declaration on food labels as part of food safety information to protect sensitive consumers.",
+        "authority": "Ministry of Health (BYT)",
+        "as_of": "2021 (Reflecting Circular No. 11/2021/TT-BYT)",
+        "note": "Vietnam does not have a comprehensive list of 'major food allergens' with mandatory labeling similar to the US or Japan. Allergen information is often provided voluntarily or as part of general food safety and nutritional labeling guidelines. Future regulations may introduce a mandatory list.",
+        "source_type": "official_law",
+        "confidence_level": "high"
+      }
     },
     {
       "name": "Đậu phộng (Peanut)",
-      "keywords": ["땅콩", "peanut", "đậu phộng", "lạc"]
+      "keywords": [
+        "땅콩",
+        "peanut",
+        "đậu phộng",
+        "lạc"
+      ],
+      "details": {
+        "regulation": "Decree No. 43/2017/ND-CP on Goods Labels, Circular No. 05/2019/TT-BYT & Circular No. 11/2021/TT-BYT on Nutritional Labeling",
+        "article": "Decree 43 Article 10 (Mandatory contents of goods labels); Circular 05/2019/TT-BYT Article 5 (Allergen information is voluntarily declared)",
+        "reason": "While not explicitly mandated as major allergens, common allergens are generally recommended for declaration on food labels as part of food safety information to protect sensitive consumers.",
+        "authority": "Ministry of Health (BYT)",
+        "as_of": "2021 (Reflecting Circular No. 11/2021/TT-BYT)",
+        "note": "Vietnam does not have a comprehensive list of 'major food allergens' with mandatory labeling similar to the US or Japan. Allergen information is often provided voluntarily or as part of general food safety and nutritional labeling guidelines. Future regulations may introduce a mandatory list.",
+        "source_type": "official_law",
+        "confidence_level": "high"
+      }
     },
     {
       "name": "Đậu nành (Soy)",
-      "keywords": ["대두", "콩", "soy", "đậu nành"]
+      "keywords": [
+        "대두",
+        "콩",
+        "soy",
+        "đậu nành"
+      ],
+      "details": {
+        "regulation": "Decree No. 43/2017/ND-CP on Goods Labels, Circular No. 05/2019/TT-BYT & Circular No. 11/2021/TT-BYT on Nutritional Labeling",
+        "article": "Decree 43 Article 10 (Mandatory contents of goods labels); Circular 05/2019/TT-BYT Article 5 (Allergen information is voluntarily declared)",
+        "reason": "While not explicitly mandated as major allergens, common allergens are generally recommended for declaration on food labels as part of food safety information to protect sensitive consumers.",
+        "authority": "Ministry of Health (BYT)",
+        "as_of": "2021 (Reflecting Circular No. 11/2021/TT-BYT)",
+        "note": "Vietnam does not have a comprehensive list of 'major food allergens' with mandatory labeling similar to the US or Japan. Allergen information is often provided voluntarily or as part of general food safety and nutritional labeling guidelines. Future regulations may introduce a mandatory list.",
+        "source_type": "official_law",
+        "confidence_level": "high"
+      }
     },
     {
       "name": "Hải sản (Seafood)",
-      "keywords": ["새우", "게", "오징어", "seafood", "hải sản", "tôm", "cua"]
+      "keywords": [
+        "새우",
+        "게",
+        "오징어",
+        "seafood",
+        "hải sản",
+        "tôm",
+        "cua"
+      ],
+      "details": {
+        "regulation": "Decree No. 43/2017/ND-CP on Goods Labels, Circular No. 05/2019/TT-BYT & Circular No. 11/2021/TT-BYT on Nutritional Labeling",
+        "article": "Decree 43 Article 10 (Mandatory contents of goods labels); Circular 05/2019/TT-BYT Article 5 (Allergen information is voluntarily declared)",
+        "reason": "While not explicitly mandated as major allergens, common allergens are generally recommended for declaration on food labels as part of food safety information to protect sensitive consumers.",
+        "authority": "Ministry of Health (BYT)",
+        "as_of": "2021 (Reflecting Circular No. 11/2021/TT-BYT)",
+        "note": "Vietnam does not have a comprehensive list of 'major food allergens' with mandatory labeling similar to the US or Japan. Allergen information is often provided voluntarily or as part of general food safety and nutritional labeling guidelines. Future regulations may introduce a mandatory list.",
+        "source_type": "official_law",
+        "confidence_level": "high"
+      }
     }
   ],
-  "required_labels": ["tên sản phẩm", "thành phần", "khối lượng", "ngày sản xuất", "hạn sử dụng"]
+  "required_labels": [
+    "tên sản phẩm",
+    "thành phần",
+    "khối lượng",
+    "ngày sản xuất",
+    "hạn sử dụng"
+  ]
 }

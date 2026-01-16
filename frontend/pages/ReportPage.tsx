@@ -220,24 +220,41 @@ const ReportPage: React.FC = () => {
           </section>
         )}
 
-        <section className="bg-white rounded-xl border border-[#dde2e4] shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-[#dde2e4] bg-gray-50/50 flex items-center gap-2">
+        <section className="bg-white dark:bg-gray-800 rounded-xl border border-[#dde2e4] dark:border-gray-700 shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-[#dde2e4] dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 flex items-center gap-2">
             <span className="material-symbols-outlined text-primary">gavel</span>
-            <h3 className="font-bold text-[#121617]">{countryLabels[report.country]} 수출 규정 검토 결과</h3>
+            <h3 className="font-bold text-[#121617] dark:text-gray-200">{countryLabels[report.country]} 수출 규정 검토 결과</h3>
           </div>
-          <div className="p-6">
-            <ul className="space-y-4">
+          <div className="p-4 md:p-6">
+            <ul className="space-y-3">
               {report.regulations.length > 0 ? report.regulations.map((reg, i) => (
-                <li key={i} className="flex gap-3">
-                  <span className={`material-symbols-outlined shrink-0 ${reg.type === 'warning' ? 'text-amber-500' : 'text-blue-500'}`}>
+                <li key={i} className="flex gap-4 p-4 rounded-lg bg-white dark:bg-gray-700/50 even:bg-gray-50/50 dark:even:bg-gray-700/80 border border-gray-100 dark:border-gray-700">
+                  <span className={`material-symbols-outlined shrink-0 mt-1 ${reg.type === 'warning' ? 'text-amber-500' : 'text-blue-500'}`}>
                     {reg.type === 'warning' ? 'warning' : 'info'}
                   </span>
-                  <div className="text-sm">
-                    <p className="font-bold text-[#121617]">{reg.title}</p>
-                    <p className="text-[#677c83] mt-1 break-keep">{reg.description}</p>
+                  <div className="text-sm w-full">
+                    <p className="font-bold text-[#121617] dark:text-gray-200">{reg.title}</p>
+                    <p className="text-[#677c83] dark:text-gray-400 mt-1 break-keep">{reg.description}</p>
+  
+                    {(reg.regulation || reg.article || reg.reason) && (
+                      <div className="mt-3 pt-3 border-t border-dashed border-gray-200 dark:border-gray-600">
+                        <h5 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase mb-2">근거 정보</h5>
+                        <div className="space-y-1 text-xs text-gray-500 dark:text-gray-400">
+                          {reg.regulation && (
+                            <p><strong className="font-semibold text-gray-600 dark:text-gray-300">관련 규정:</strong> {reg.regulation}</p>
+                          )}
+                          {reg.article && (
+                            <p><strong className="font-semibold text-gray-600 dark:text-gray-300">세부 조항:</strong> {reg.article}</p>
+                          )}
+                          {reg.reason && (
+                            <p><strong className="font-semibold text-gray-600 dark:text-gray-300">사유:</strong> {reg.reason}</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </li>
-              )) : <p className="text-gray-500 text-sm">검토 결과 데이터가 없습니다.</p>}
+              )) : <p className="text-gray-500 dark:text-gray-400 text-sm px-4">검토 결과 데이터가 없습니다.</p>}
             </ul>
           </div>
         </section>

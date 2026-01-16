@@ -27,6 +27,9 @@ export interface RegulationCheck {
   type: 'warning' | 'info';
   title: string;
   description: string;
+  regulation?: string;
+  article?: string;
+  reason?: string;
 }
 
 export interface MarketingSuggestion {
@@ -66,6 +69,9 @@ export interface ApiRiskItem {
   allergen: string;
   risk: string;
   severity: 'HIGH' | 'LOW';
+  regulation?: string;
+  article?: string;
+  reason?: string;
 }
 
 export interface ApiPromoContent {

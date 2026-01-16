@@ -60,6 +60,9 @@ function convertRisks(risks: ApiRiskItem[]): RegulationCheck[] {
       ? '규정 준수 확인'
       : `알레르겐 주의: ${risk.allergen}`,
     description: risk.risk,
+    regulation: risk.regulation,
+    article: risk.article,
+    reason: risk.reason,
   }));
 }
 

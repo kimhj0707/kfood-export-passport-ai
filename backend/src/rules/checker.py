@@ -175,7 +175,8 @@ def check_risks(text: str, country: str = "US") -> List[Dict[str, str]]:
 
         # 3) 경고 문구가 명시적이지 않으면 HIGH 리스크
         if not has_warning:
-            risks.append({
+            details = allergen.get("details", {})
+            risk_item = {
                 "allergen": allergen_name,
                 "risk": (
                     f"[{country}] Allergen detected: {allergen_name}. "
@@ -183,7 +184,9 @@ def check_risks(text: str, country: str = "US") -> List[Dict[str, str]]:
                     f"(e.g., 'Contains: {allergen_name}')."
                 ),
                 "severity": "HIGH"
-            })
+            }
+            risk_item.update(details)
+            risks.append(risk_item)
 
 
     # 4) 알레르겐 키워드 자체가 안 잡히면 None(LOW)

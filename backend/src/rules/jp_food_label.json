@@ -4,32 +4,164 @@
   "major_allergens": [
     {
       "name": "小麦 (Wheat)",
-      "keywords": ["밀", "wheat", "小麦", "글루텐", "gluten"]
+      "keywords": [
+        "밀",
+        "wheat",
+        "小麦",
+        "글루텐",
+        "gluten"
+      ],
+      "details": {
+        "regulation": "食品表示法 (Food Labeling Act)",
+        "article": "食品表示基準 (Food Labeling Standards) 別表第1",
+        "reason": "This is designated as a 'Specified Raw Material' (特定原材料) for which allergen labeling is mandatory due to high incidence and severity of allergic reactions.",
+        "authority": "消費者庁 (Consumer Affairs Agency)",
+        "as_of": "2023",
+        "note": "Japan's allergen labeling system categorizes items into 'Specified Raw Materials' (mandatory, 8 items as of 2023) and 'Raw Materials Equivalent to Specified Ones' (recommended, 20 items as of 2023). The list may be periodically updated.",
+        "source_type": "official_law",
+        "confidence_level": "high"
+      }
     },
     {
       "name": "卵 (Egg)",
-      "keywords": ["계란", "달걀", "egg", "卵", "란"]
+      "keywords": [
+        "계란",
+        "달걀",
+        "egg",
+        "卵",
+        "란"
+      ],
+      "details": {
+        "regulation": "食品表示法 (Food Labeling Act)",
+        "article": "食品表示基準 (Food Labeling Standards) 別表第1",
+        "reason": "This is designated as a 'Specified Raw Material' (特定原材料) for which allergen labeling is mandatory due to high incidence and severity of allergic reactions.",
+        "authority": "消費者庁 (Consumer Affairs Agency)",
+        "as_of": "2023",
+        "note": "Japan's allergen labeling system categorizes items into 'Specified Raw Materials' (mandatory, 8 items as of 2023) and 'Raw Materials Equivalent to Specified Ones' (recommended, 20 items as of 2023). The list may be periodically updated.",
+        "source_type": "official_law",
+        "confidence_level": "high"
+      }
     },
     {
       "name": "乳 (Milk)",
-      "keywords": ["우유", "milk", "乳", "유제품", "lactose"]
+      "keywords": [
+        "우유",
+        "milk",
+        "乳",
+        "유제품",
+        "lactose"
+      ],
+      "details": {
+        "regulation": "食品表示法 (Food Labeling Act)",
+        "article": "食品表示基準 (Food Labeling Standards) 別表第1",
+        "reason": "This is designated as a 'Specified Raw Material' (特定原材料) for which allergen labeling is mandatory due to high incidence and severity of allergic reactions.",
+        "authority": "消費者庁 (Consumer Affairs Agency)",
+        "as_of": "2023",
+        "note": "Japan's allergen labeling system categorizes items into 'Specified Raw Materials' (mandatory, 8 items as of 2023) and 'Raw Materials Equivalent to Specified Ones' (recommended, 20 items as of 2023). The list may be periodically updated.",
+        "source_type": "official_law",
+        "confidence_level": "high"
+      }
     },
     {
       "name": "そば (Buckwheat)",
-      "keywords": ["메밀", "buckwheat", "そば", "소바"]
+      "keywords": [
+        "메밀",
+        "buckwheat",
+        "そば",
+        "소바"
+      ],
+      "details": {
+        "regulation": "食品表示法 (Food Labeling Act)",
+        "article": "食品表示基準 (Food Labeling Standards) 別表第1",
+        "reason": "This is designated as a 'Specified Raw Material' (特定原材料) for which allergen labeling is mandatory due to high incidence and severity of allergic reactions.",
+        "authority": "消費者庁 (Consumer Affairs Agency)",
+        "as_of": "2023",
+        "note": "Japan's allergen labeling system categorizes items into 'Specified Raw Materials' (mandatory, 8 items as of 2023) and 'Raw Materials Equivalent to Specified Ones' (recommended, 20 items as of 2023). The list may be periodically updated.",
+        "source_type": "official_law",
+        "confidence_level": "high"
+      }
     },
     {
       "name": "落花生 (Peanut)",
-      "keywords": ["땅콩", "peanut", "落花生", "피넛"]
+      "keywords": [
+        "땅콩",
+        "peanut",
+        "落花生",
+        "피넛"
+      ],
+      "details": {
+        "regulation": "食品表示法 (Food Labeling Act)",
+        "article": "食品表示基準 (Food Labeling Standards) 別表第1",
+        "reason": "This is designated as a 'Specified Raw Material' (特定原材料) for which allergen labeling is mandatory due to high incidence and severity of allergic reactions.",
+        "authority": "消費者庁 (Consumer Affairs Agency)",
+        "as_of": "2023",
+        "note": "Japan's allergen labeling system categorizes items into 'Specified Raw Materials' (mandatory, 8 items as of 2023) and 'Raw Materials Equivalent to Specified Ones' (recommended, 20 items as of 2023). The list may be periodically updated.",
+        "source_type": "official_law",
+        "confidence_level": "high"
+      }
     },
     {
       "name": "えび (Shrimp)",
-      "keywords": ["새우", "shrimp", "えび", "에비"]
+      "keywords": [
+        "새우",
+        "shrimp",
+        "えび",
+        "에비"
+      ],
+      "details": {
+        "regulation": "食品表示法 (Food Labeling Act)",
+        "article": "食品表示基準 (Food Labeling Standards) 別表第1",
+        "reason": "This is designated as a 'Specified Raw Material' (特定原材料) for which allergen labeling is mandatory due to high incidence and severity of allergic reactions.",
+        "authority": "消費者庁 (Consumer Affairs Agency)",
+        "as_of": "2023",
+        "note": "Japan's allergen labeling system categorizes items into 'Specified Raw Materials' (mandatory, 8 items as of 2023) and 'Raw Materials Equivalent to Specified Ones' (recommended, 20 items as of 2023). The list may be periodically updated.",
+        "source_type": "official_law",
+        "confidence_level": "high"
+      }
     },
     {
       "name": "かに (Crab)",
-      "keywords": ["게", "crab", "かに", "카니"]
+      "keywords": [
+        "게",
+        "crab",
+        "かに",
+        "카니"
+      ],
+      "details": {
+        "regulation": "食品表示法 (Food Labeling Act)",
+        "article": "食品表示基準 (Food Labeling Standards) 別表第1",
+        "reason": "This is designated as a 'Specified Raw Material' (特定原材料) for which allergen labeling is mandatory due to high incidence and severity of allergic reactions.",
+        "authority": "消費者庁 (Consumer Affairs Agency)",
+        "as_of": "2023",
+        "note": "Japan's allergen labeling system categorizes items into 'Specified Raw Materials' (mandatory, 8 items as of 2023) and 'Raw Materials Equivalent to Specified Ones' (recommended, 20 items as of 2023). The list may be periodically updated.",
+        "source_type": "official_law",
+        "confidence_level": "high"
+      }
+    },
+    {
+      "name": "くるみ (Walnut)",
+      "keywords": [
+        "호두",
+        "walnut",
+        "くるみ"
+      ],
+      "details": {
+        "regulation": "食品表示法 (Food Labeling Act)",
+        "article": "食品表示基準 (Food Labeling Standards) 別表第1",
+        "reason": "くるみ (Walnut) is designated as a 'Specified Raw Material' (特定原材料) for which allergen labeling is mandatory due to its high incidence and severity of allergic reactions. Added as mandatory in 2023.",
+        "authority": "消費者庁 (Consumer Affairs Agency)",
+        "as_of": "2023",
+        "note": "Japan's allergen labeling system categorizes items into 'Specified Raw Materials' (mandatory, 8 items as of 2023) and 'Raw Materials Equivalent to Specified Ones' (recommended, 20 items as of 2023). The list may be periodically updated.",
+        "source_type": "official_law",
+        "confidence_level": "high"
+      }
     }
   ],
-  "required_labels": ["원재료명", "내용량", "유통기한", "보존방법", "제조자"]
+  "required_labels": [
+    "원재료명",
+    "내용량",
+    "유통기한",
+    "보존방법",
+    "제조자"
+  ]
 }
