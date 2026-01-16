@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type Theme = 'light' | 'dark';
@@ -21,31 +20,35 @@ export const useTheme = () => {
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>(() => {
-    // 로컬 스토리지에서 테마 설정 가져오기
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('theme') as Theme;
-      if (saved) return saved;
-
-      // 시스템 설정 확인
+      const savedTheme = localStorage.getItem('theme') as Theme;
+      if (savedTheme) {
+        return savedTheme;
+      }
       if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
         return 'dark';
       }
     }
+    // 기본 테마를 'light'로 설정
     return 'light';
   });
 
   useEffect(() => {
-    // HTML 요소에 dark 클래스 추가/제거
     const root = window.document.documentElement;
-    root.classList.remove('light', 'dark');
+    
+    // 이전 테마 클래스 제거
+    const oldTheme = theme === 'light' ? 'dark' : 'light';
+    root.classList.remove(oldTheme);
+    
+    // 현재 테마 클래스 추가
     root.classList.add(theme);
 
-    // 로컬 스토리지에 저장
+    // 로컬 스토리지에 현재 테마 저장
     localStorage.setItem('theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
   };
 
   return (

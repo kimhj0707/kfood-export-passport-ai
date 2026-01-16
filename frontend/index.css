@@ -2,40 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-background: 248 250 252; /* slate-50 */
+  --color-text-primary: 30 41 59; /* slate-800 */
+  --color-text-secondary: 71 85 105; /* slate-600 */
+  --color-text-muted: 148 163 184; /* slate-400 */
+  
+  --color-primary: 79 70 229; /* indigo-600 */
+  --color-primary-hover: 99 102 241; /* indigo-500 */
+  
+  --color-card-background: 255 255 255; /* white */
+  --color-card-border: 226 232 240; /* slate-200 */
+  --color-card-sub-bg: 241 245 249; /* slate-100 */
+  
+  --shadow-color: 203 213 225; /* slate-300 */
+}
+
+.dark {
+  --color-background: 2 6 23; /* slate-950 */
+  --color-text-primary: 248 250 252; /* slate-50 */
+  --color-text-secondary: 226 232 240; /* slate-200 */
+  --color-text-muted: 100 116 139; /* slate-500 */
+
+  --color-primary: 99 102 241; /* indigo-500 */
+  --color-primary-hover: 129 140 248; /* indigo-400 */
+
+  --color-card-background: 255 255 255;
+  --color-card-border: 255 255 255;
+  --color-card-sub-bg: 255 255 255;
+  
+  --shadow-color: 0 0 0;
+}
+
 body {
-    background-color: #f6f7f8; /* bg-light */
-    color: rgb(31 41 55); /* text-gray-800 */
+    background-color: rgb(var(--color-background));
+    color: rgb(var(--color-text-primary));
     transition: background-color 0.3s, color 0.3s;
 }
 
-html.dark body {
-    background-color: rgb(17 24 39); /* bg-gray-900 */
-    color: rgb(229 231 235); /* text-gray-200 */
-}
-
 @keyframes blob {
-  0% {
-    transform: translate(0px, 0px) scale(1);
-  }
-  33% {
-    transform: translate(30px, -50px) scale(1.1);
-  }
-  66% {
-    transform: translate(-20px, 20px) scale(0.9);
-  }
-  100% {
-    transform: translate(0px, 0px) scale(1);
-  }
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
 }
 
 .animate-blob {
   animation: blob 7s infinite;
 }
+.animation-delay-2000 { animation-delay: 2s; }
+.animation-delay-4000 { animation-delay: 4s; }
 
-.animation-delay-2000 {
-  animation-delay: 2s;
+@keyframes progress-shine {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
-.animation-delay-4000 {
-  animation-delay: 4s;
+.animate-progress-shine {
+  background-size: 200% auto;
+  animation: progress-shine 2s linear infinite;
 }

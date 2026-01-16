@@ -1,22 +1,32 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class', // 다크모드 클래스 기반으로 활성화
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-    "./pages/**/*.{js,ts,jsx,tsx}",
-    "./components/**/*.{js,ts,jsx,tsx}",
+    "./{src,pages,components}/**/*.{js,ts,jsx,tsx,svg}",
   ],
   theme: {
     extend: {
       colors: {
-        primary: '#007BFF',
-        secondary: '#F8F9FA',
-        accent: '#28A745',
-        'text-dark': '#212529',
-        'text-light': '#F8F9FA',
-        'bg-dark': '#212529',
-        'bg-light': '#F8F9FA',
+        background: 'rgb(var(--color-background) / <alpha-value>)',
+        'text-primary': 'rgb(var(--color-text-primary) / <alpha-value>)',
+        'text-secondary': 'rgb(var(--color-text-secondary) / <alpha-value>)',
+        'text-muted': 'rgb(var(--color-text-muted) / <alpha-value>)',
+        
+        primary: {
+          DEFAULT: 'rgb(var(--color-primary) / <alpha-value>)',
+          hover: 'rgb(var(--color-primary-hover) / <alpha-value>)',
+        },
+        
+        card: {
+          DEFAULT: 'rgb(var(--color-card-background) / <alpha-value>)',
+          border: 'rgb(var(--color-card-border) / <alpha-value>)',
+          'sub-bg': 'rgb(var(--color-card-sub-bg) / <alpha-value>)',
+        },
       },
+      boxShadowColor: {
+        DEFAULT: 'rgb(var(--shadow-color) / 0.1)',
+      }
     },
   },
   plugins: [],

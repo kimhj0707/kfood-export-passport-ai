@@ -1,0 +1,45 @@
+<svg width="100%" height="100%" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Base Card -->
+  <rect width="400" height="300" rx="20" class="fill-card-sub-bg/50 dark:fill-card-sub-bg" />
+  <rect x="1" y="1" width="398" height="298" rx="19" class="stroke-card-border" stroke-width="2" />
+
+  <!-- Fake Label Text Lines -->
+  <rect x="30" y="40" width="200" height="12" rx="6" class="fill-text-muted/30" />
+  <rect x="30" y="65" width="150" height="10" rx="5" class="fill-text-muted/20" />
+  <rect x="30" y="90" width="220" height="8" rx="4" class="fill-text-muted/20" />
+  <rect x="30" y="105" width="250" height="8" rx="4" class="fill-text-muted/20" />
+  <rect x="30" y="120" width="180" height="8" rx="4" class="fill-text-muted/20" />
+
+  <!-- Barcode -->
+  <rect x="280" y="40" width="90" height="40" class="fill-text-muted/30" />
+  <path d="M285 45V75M290 45V75M295 45V75M305 45V75M310 45V75M320 45V75M330 45V75M335 45V75M345 45V75M350 45V75M360 45V75M365 45V75" class="stroke-card-sub-bg/50 dark:stroke-card-sub-bg" stroke-width="3" />
+
+  <!-- UI Overlay: Main Analysis Card -->
+  <g transform="translate(20 150)">
+    <rect width="360" height="120" rx="15" class="fill-background/80 dark:fill-background/50 backdrop-blur-md" stroke-width="2" />
+    <path d="M1 15C1 7.26801 7.26802 1 15 1H345C352.732 1 359 7.26802 359 15V119H1V15Z" class="stroke-card-border" />
+    
+    <!-- Header -->
+    <rect width="360" height="40" rx="0" class="fill-card-sub-bg/50 dark:fill-card-sub-bg" />
+    <path d="M1 15C1 7.26801 7.26802 1 15 1H345C352.732 1 359 7.26802 359 15V40H1V15Z" class="stroke-card-border" />
+    <circle cx="25" cy="20" r="6" class="fill-red-500/80" />
+    <circle cx="45" cy="20" r="6" class="fill-amber-500/80" />
+    <circle cx="65" cy="20" r="6" class="fill-green-500/80" />
+    <rect x="100" y="15" width="80" height="10" rx="5" class="fill-text-muted/30" />
+
+    <!-- Content: Analysis Result -->
+    <g transform="translate(20 55)">
+      <!-- Check Icon -->
+      <circle cx="12" cy="12" r="12" class="fill-green-500/20" />
+      <path d="M17 9L11 15L8 12" stroke-width="2" class="stroke-green-500" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="35" y="8" width="120" height="8" rx="4" class="fill-text-muted/50" />
+
+      <!-- Warning Icon -->
+      <circle cx="12" cy="42" r="12" class="fill-amber-500/20" />
+      <path d="M12 38V42M12 46H12.01" stroke-width="2" class="stroke-amber-500" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="35" y="38" width="180" height="8" rx="4" class="fill-text-muted/50" />
+      <rect x="220" y="38" width="50" height="8" rx="4" class="fill-amber-500/40" />
+
+    </g>
+  </g>
+</svg>
