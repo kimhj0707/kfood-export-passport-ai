@@ -56,18 +56,32 @@ function convertNutrition(
 function convertRisks(risks: ApiRiskItem[]): RegulationCheck[] {
   if (!risks || !Array.isArray(risks)) return [];
 
-  return risks.map((risk) => ({
-    type: risk.severity === 'HIGH' ? 'warning' : 'info',
-    title: risk.allergen === 'PASS' || risk.allergen === 'None'
-      ? risk.risk // 'PASS' 또는 'None'일 때는 risk 메시지를 제목으로 사용
-      : `[${risk.allergen}] 성분 경고`,
-    description: risk.risk,
-    confidence: risk.confidence,
-    evidence: risk.evidence,
-    details: risk.details,
-    next_step: risk.next_step,
-    expert_check_required: risk.expert_check_required,
-  }));
+  return risks.map((risk) => {
+    // severity → type 변환: HIGH/MEDIUM은 warning, LOW는 info
+    const type = (risk.severity === 'HIGH' || risk.severity === 'MEDIUM') ? 'warning' : 'info';
+
+    // 타이틀 생성
+    let title: string;
+    if (risk.allergen === 'PASS' || risk.allergen === 'None') {
+      title = risk.risk;
+    } else if (risk.allergen === 'CROSS_CONTAMINATION') {
+      title = '교차오염 가능성 문구 감지';
+    } else {
+      title = `[${risk.allergen}] 성분 경고`;
+    }
+
+    return {
+      type,
+      title,
+      description: risk.risk,
+      confidence: risk.confidence,
+      evidence: risk.evidence || { matched: [], hint: '' },
+      details: risk.details || {},
+      next_step: risk.next_step,
+      expert_check_required: risk.expert_check_required,
+      severity: risk.severity, // severity 원본 유지
+    };
+  });
 }
 
 /**

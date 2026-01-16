@@ -483,12 +483,22 @@ def check_risks(
     high_risks = [r for r in risks if r.get("severity") == "HIGH"]
     medium_risks = [r for r in risks if r.get("severity") == "MEDIUM"]
 
+    # priority_item 한글 변환
+    def _translate_priority(allergen: str) -> str:
+        translations = {
+            "CROSS_CONTAMINATION": "교차오염 문구 확인",
+            "None": "없음",
+            "PASS": "규정 준수",
+            "Unknown": "알 수 없음",
+        }
+        return translations.get(allergen, allergen)
+
     if high_risks:
         overall_summary = f"높은 위험도의 알레르기 규정 위반 {len(high_risks)}건이 감지되었습니다. 즉시 확인이 필요합니다."
-        priority_item = high_risks[0].get("allergen", "Unknown")
+        priority_item = _translate_priority(high_risks[0].get("allergen", "Unknown"))
     elif medium_risks:
         overall_summary = f"중간 위험도의 주의 항목 {len(medium_risks)}건이 감지되었습니다. 추가 검토(표기/표현) 권장."
-        priority_item = medium_risks[0].get("allergen", "MEDIUM_ITEM")
+        priority_item = _translate_priority(medium_risks[0].get("allergen", "MEDIUM_ITEM"))
     else:
         overall_summary = "현재 OCR 텍스트에서는 알레르기 관련 주요 위험이 감지되지 않았습니다."
         priority_item = "없음"
@@ -499,8 +509,10 @@ def check_risks(
         "expected_effect": "규정 준수 및 수출 가능성 향상"
     }
 
-    # 5) correction_guide 생성 (HIGH 있을 때만 2세트)
+    # 5) correction_guide 생성 (HIGH 또는 MEDIUM 있을 때)
     correction_guide: List[Dict[str, str]] = []
+
+    # HIGH 위험: 알레르겐 표기 누락
     if high_risks:
         allergen_for_guide = high_risks[0].get("allergen", "ALLERGEN")
         correction_guide.append({
@@ -510,6 +522,17 @@ def check_risks(
         correction_guide.append({
             "before": "제품명: 맛있는 과자",
             "after": f"제품명: 맛있는 과자\n알레르기 정보: {allergen_for_guide} 함유"
+        })
+
+    # MEDIUM 위험: 교차오염 문구 처리
+    if cross_contamination:
+        correction_guide.append({
+            "before": "이 제품은 난류, 우유, 새우를 사용한 제품과 같은 시설에서 제조",
+            "after": "May contain traces of: Eggs, Milk, Shrimp\n(교차오염 가능성을 영문으로 명확히 표기)"
+        })
+        correction_guide.append({
+            "before": "같은 제조시설에서 제조하고 있습니다",
+            "after": "Produced in a facility that also processes: [알레르겐 목록]\n(수출국 규정에 맞는 표현으로 변경)"
         })
 
     # 6) regulatory_basis

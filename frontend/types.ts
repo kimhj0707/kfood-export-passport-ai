@@ -40,6 +40,7 @@ export interface RegulationCheck {
   };
   next_step?: string;
   expert_check_required: boolean;
+  severity?: 'HIGH' | 'MEDIUM' | 'LOW';
 }
 
 export interface MarketingSuggestion {
@@ -47,7 +48,7 @@ export interface MarketingSuggestion {
 export interface ApiRiskItem {
   allergen: string;
   risk: string;
-  severity: 'HIGH' | 'LOW';
+  severity: 'HIGH' | 'MEDIUM' | 'LOW';
   confidence: number;
   evidence: {
     matched: string[];
