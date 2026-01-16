@@ -1,11 +1,11 @@
 <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!-- Passport Shape -->
-  <path d="M20 10H80C85.5228 10 90 14.4772 90 20V80C90 85.5228 85.5228 90 80 90H20C14.4772 90 10 85.5228 10 80V20C10 14.4772 14.4772 10 20 10Z" class="stroke-text-primary" stroke-width="4"/>
+  <path d="M20 10H80C85.5228 10 90 14.4772 90 20V80C90 85.5228 85.5228 90 80 90H20C14.4772 90 10 85.5228 10 80V20C10 14.4772 14.4772 10 20 10Z" stroke="currentColor" stroke-width="4"/>
 
   <!-- Verification Check Mark -->
-  <path d="M40 50L55 65L75 40" class="stroke-primary" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-  
+  <path d="M40 50L55 65L75 40" stroke="#6366f1" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+
   <!-- Subtle Document Lines -->
-  <line x1="25" y1="30" x2="75" y2="30" class="stroke-text-muted/50" stroke-width="2"/>
-  <line x1="25" y1="75" x2="50" y2="75" class="stroke-text-muted/50" stroke-width="2"/>
+  <line x1="25" y1="30" x2="75" y2="30" stroke="currentColor" stroke-opacity="0.3" stroke-width="2"/>
+  <line x1="25" y1="75" x2="50" y2="75" stroke="currentColor" stroke-opacity="0.3" stroke-width="2"/>
 </svg>
