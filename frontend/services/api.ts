@@ -174,15 +174,36 @@ export const getReport = async (id: string): Promise<AnalysisReport | undefined>
   }
 };
 
+export interface HistoryFilters {
+  country?: string;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
 /**
- * 리포트 히스토리 목록 조회 (페이지네이션 지원)
+ * 리포트 히스토리 목록 조회 (페이지네이션 + 필터 지원)
  */
 export const getHistory = async (
   limit: number = 10,
-  offset: number = 0
+  offset: number = 0,
+  filters?: HistoryFilters
 ): Promise<{ reports: AnalysisReport[]; total: number }> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/reports?limit=${limit}&offset=${offset}`);
+    const params = new URLSearchParams();
+    params.append('limit', limit.toString());
+    params.append('offset', offset.toString());
+
+    if (filters?.country) {
+      params.append('country', filters.country);
+    }
+    if (filters?.dateFrom) {
+      params.append('date_from', filters.dateFrom);
+    }
+    if (filters?.dateTo) {
+      params.append('date_to', filters.dateTo);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/reports?${params.toString()}`);
 
     if (!response.ok) {
       throw new Error('히스토리 조회 실패');

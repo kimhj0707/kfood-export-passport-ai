@@ -1,0 +1,38 @@
+{
+  "country": "CN",
+  "regulation": "China Food Safety Law (GB 7718-2011)",
+  "major_allergens": [
+    {
+      "name": "Gluten-containing cereals",
+      "keywords": ["wheat", "밀", "小麦", "rye", "호밀", "黑麦", "barley", "보리", "大麦", "oats", "귀리", "燕麦", "gluten", "글루텐", "麸质", "flour", "밀가루", "面粉"]
+    },
+    {
+      "name": "Crustaceans",
+      "keywords": ["crustacean", "갑각류", "甲壳类", "shrimp", "새우", "虾", "crab", "게", "蟹", "lobster", "랍스터", "龙虾"]
+    },
+    {
+      "name": "Fish",
+      "keywords": ["fish", "생선", "鱼", "salmon", "연어", "三文鱼", "tuna", "참치", "金枪鱼", "cod", "대구", "鳕鱼"]
+    },
+    {
+      "name": "Eggs",
+      "keywords": ["egg", "계란", "달걀", "蛋", "鸡蛋", "albumin", "알부민", "蛋白"]
+    },
+    {
+      "name": "Peanuts",
+      "keywords": ["peanut", "땅콩", "花生", "groundnut"]
+    },
+    {
+      "name": "Soybeans",
+      "keywords": ["soy", "대두", "콩", "大豆", "黄豆", "soybean", "tofu", "두부", "豆腐", "soya"]
+    },
+    {
+      "name": "Milk",
+      "keywords": ["milk", "우유", "牛奶", "乳", "lactose", "유당", "乳糖", "casein", "카제인", "酪蛋白", "whey", "유청", "乳清"]
+    },
+    {
+      "name": "Tree Nuts",
+      "keywords": ["almond", "아몬드", "杏仁", "walnut", "호두", "核桃", "cashew", "캐슈", "腰果", "hazelnut", "헤이즐넛", "榛子", "pistachio", "피스타치오", "开心果"]
+    }
+  ]
+}

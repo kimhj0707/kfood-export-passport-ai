@@ -9,11 +9,13 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import ToastContainer from './components/Toast';
 import { ToastProvider } from './contexts/ToastContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 const App: React.FC = () => {
   return (
-    <ToastProvider>
-      <Router>
+    <ThemeProvider>
+      <ToastProvider>
+        <Router>
         <div className="flex flex-col min-h-screen">
           <Header />
           <main className="flex-grow">
@@ -27,8 +29,9 @@ const App: React.FC = () => {
           <Footer />
         </div>
         <ToastContainer />
-      </Router>
-    </ToastProvider>
+        </Router>
+      </ToastProvider>
+    </ThemeProvider>
   );
 };
 

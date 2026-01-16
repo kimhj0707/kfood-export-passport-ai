@@ -19,7 +19,7 @@ from src.rules.nutrition_parser import parse_nutrition
 from src.llm.promo_generator import generate_promo
 from src.report.pdf_report import generate_pdf_report
 
-from src.api.db import save_report, get_report, get_reports, delete_report
+from src.api.db import save_report, get_report, get_reports, delete_report, count_reports
 from src.api.models import (
     AnalyzeResponse,
     ReportResponse,
@@ -142,7 +142,10 @@ async def api_get_report(report_id: str):
 @app.get("/api/reports", response_model=ReportListResponse)
 async def api_list_reports(
     limit: int = Query(default=10, ge=1, le=100, description="최대 개수"),
-    offset: int = Query(default=0, ge=0, description="시작 위치")
+    offset: int = Query(default=0, ge=0, description="시작 위치"),
+    country: Optional[str] = Query(default=None, description="국가 필터 (US/JP/VN)"),
+    date_from: Optional[str] = Query(default=None, description="시작 날짜 (YYYY-MM-DD)"),
+    date_to: Optional[str] = Query(default=None, description="종료 날짜 (YYYY-MM-DD)")
 ):
     """
     최근 리포트 목록 조회 (히스토리)
@@ -150,15 +153,25 @@ async def api_list_reports(
     Args:
         limit: 최대 개수 (기본 10, 최대 100)
         offset: 시작 위치
+        country: 국가 필터 (선택)
+        date_from: 시작 날짜 필터 (선택)
+        date_to: 종료 날짜 필터 (선택)
 
     Returns:
         리포트 목록 (최신순)
     """
-    reports = get_reports(limit=limit, offset=offset)
+    reports = get_reports(
+        limit=limit,
+        offset=offset,
+        country=country,
+        date_from=date_from,
+        date_to=date_to
+    )
+    total = count_reports(country=country, date_from=date_from, date_to=date_to)
 
     return JSONResponse(content={
         "reports": reports,
-        "total": len(reports)
+        "total": total
     })
 
 

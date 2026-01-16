@@ -6,7 +6,7 @@
 export interface AnalysisReport {
   id: string;
   createdAt: string;
-  country: 'US' | 'JP' | 'VN';
+  country: 'US' | 'JP' | 'VN' | 'EU' | 'CN';
   ocrEngine: 'google' | 'tesseract';
   ocrText: string;
   ingredients: string[];

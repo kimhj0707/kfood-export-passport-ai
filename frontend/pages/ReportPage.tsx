@@ -95,7 +95,9 @@ const ReportPage: React.FC = () => {
   const countryLabels: Record<string, string> = {
     'US': '미국 (USA)',
     'JP': '일본 (Japan)',
-    'VN': '베트남 (Vietnam)'
+    'VN': '베트남 (Vietnam)',
+    'EU': '유럽연합 (EU)',
+    'CN': '중국 (China)'
   };
 
   return (

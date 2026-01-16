@@ -142,6 +142,8 @@ const AnalyzePage: React.FC = () => {
                     <option value="US">미국 (USA)</option>
                     <option value="JP">일본 (Japan)</option>
                     <option value="VN">베트남 (Vietnam)</option>
+                    <option value="EU">유럽연합 (EU)</option>
+                    <option value="CN">중국 (China)</option>
                   </select>
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                     <span className="material-symbols-outlined">expand_more</span>

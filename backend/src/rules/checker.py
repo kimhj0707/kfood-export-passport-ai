@@ -8,7 +8,9 @@ RULES_DIR = os.path.dirname(__file__)
 COUNTRY_NAMES = {
     "US": "US FDA",
     "JP": "일본 식품표시법",
-    "VN": "베트남 식품안전법"
+    "VN": "베트남 식품안전법",
+    "EU": "EU 식품정보규정",
+    "CN": "중국 식품안전법"
 }
 
 # "경고/주의/포함" 같은 표기 마커(단, 이 마커만 있다고 PASS 처리하면 오탐이 생기므로
@@ -27,6 +29,8 @@ def _load_rules(country: str) -> Dict:
         "US": "us_fda.json",
         "JP": "jp_food_label.json",
         "VN": "vn_food_label.json",
+        "EU": "eu_food_label.json",
+        "CN": "cn_food_label.json",
     }
     filename = rule_files.get(country.upper())
     if not filename:

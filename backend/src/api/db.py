@@ -108,25 +108,59 @@ def get_report(report_id: str) -> Optional[Dict[str, Any]]:
         return _row_to_dict(row)
 
 
-def get_reports(limit: int = 10, offset: int = 0) -> List[Dict[str, Any]]:
+def get_reports(
+    limit: int = 10,
+    offset: int = 0,
+    country: Optional[str] = None,
+    date_from: Optional[str] = None,
+    date_to: Optional[str] = None
+) -> List[Dict[str, Any]]:
     """
     최근 리포트 목록 조회 (히스토리용)
 
     Args:
         limit: 최대 개수 (기본 10)
         offset: 시작 위치
+        country: 국가 필터 (선택)
+        date_from: 시작 날짜 필터 (YYYY-MM-DD)
+        date_to: 종료 날짜 필터 (YYYY-MM-DD)
 
     Returns:
         리포트 목록 (최신순)
     """
     with get_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute("""
+
+        # 동적 WHERE 절 구성
+        conditions = []
+        params = []
+
+        if country:
+            conditions.append("country = ?")
+            params.append(country)
+
+        if date_from:
+            conditions.append("DATE(created_at) >= ?")
+            params.append(date_from)
+
+        if date_to:
+            conditions.append("DATE(created_at) <= ?")
+            params.append(date_to)
+
+        where_clause = ""
+        if conditions:
+            where_clause = "WHERE " + " AND ".join(conditions)
+
+        query = f"""
             SELECT id, created_at, country, ocr_engine
             FROM reports
+            {where_clause}
             ORDER BY created_at DESC
             LIMIT ? OFFSET ?
-        """, (limit, offset))
+        """
+        params.extend([limit, offset])
+
+        cursor.execute(query, params)
         rows = cursor.fetchall()
 
         return [
@@ -138,6 +172,51 @@ def get_reports(limit: int = 10, offset: int = 0) -> List[Dict[str, Any]]:
             }
             for row in rows
         ]
+
+
+def count_reports(
+    country: Optional[str] = None,
+    date_from: Optional[str] = None,
+    date_to: Optional[str] = None
+) -> int:
+    """
+    필터 조건에 맞는 리포트 총 개수
+
+    Args:
+        country: 국가 필터 (선택)
+        date_from: 시작 날짜 필터 (YYYY-MM-DD)
+        date_to: 종료 날짜 필터 (YYYY-MM-DD)
+
+    Returns:
+        총 리포트 개수
+    """
+    with get_connection() as conn:
+        cursor = conn.cursor()
+
+        conditions = []
+        params = []
+
+        if country:
+            conditions.append("country = ?")
+            params.append(country)
+
+        if date_from:
+            conditions.append("DATE(created_at) >= ?")
+            params.append(date_from)
+
+        if date_to:
+            conditions.append("DATE(created_at) <= ?")
+            params.append(date_to)
+
+        where_clause = ""
+        if conditions:
+            where_clause = "WHERE " + " AND ".join(conditions)
+
+        query = f"SELECT COUNT(*) as count FROM reports {where_clause}"
+        cursor.execute(query, params)
+        row = cursor.fetchone()
+
+        return row["count"] if row else 0
 
 
 def delete_report(report_id: str) -> bool:

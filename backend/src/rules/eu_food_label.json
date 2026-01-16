@@ -1,0 +1,62 @@
+{
+  "country": "EU",
+  "regulation": "EU Food Information Regulation (EU FIC 1169/2011)",
+  "major_allergens": [
+    {
+      "name": "Cereals containing gluten",
+      "keywords": ["wheat", "밀", "rye", "호밀", "barley", "보리", "oats", "귀리", "spelt", "스펠트", "kamut", "카무트", "gluten", "글루텐", "flour", "밀가루"]
+    },
+    {
+      "name": "Crustaceans",
+      "keywords": ["crustacean", "갑각류", "shrimp", "새우", "prawn", "crab", "게", "lobster", "랍스터", "crayfish", "가재"]
+    },
+    {
+      "name": "Eggs",
+      "keywords": ["egg", "계란", "달걀", "albumin", "알부민", "lysozyme", "라이소자임"]
+    },
+    {
+      "name": "Fish",
+      "keywords": ["fish", "생선", "salmon", "연어", "tuna", "참치", "cod", "대구", "anchovy", "멸치", "sardine", "정어리"]
+    },
+    {
+      "name": "Peanuts",
+      "keywords": ["peanut", "땅콩", "groundnut", "arachis"]
+    },
+    {
+      "name": "Soybeans",
+      "keywords": ["soy", "대두", "콩", "soybean", "tofu", "두부", "soya", "lecithin", "레시틴"]
+    },
+    {
+      "name": "Milk",
+      "keywords": ["milk", "우유", "lactose", "유당", "casein", "카제인", "whey", "유청", "cream", "크림", "butter", "버터", "cheese", "치즈"]
+    },
+    {
+      "name": "Nuts",
+      "keywords": ["almond", "아몬드", "hazelnut", "헤이즐넛", "walnut", "호두", "cashew", "캐슈", "pecan", "피칸", "pistachio", "피스타치오", "macadamia", "마카다미아", "brazil nut", "브라질넛"]
+    },
+    {
+      "name": "Celery",
+      "keywords": ["celery", "셀러리", "celeriac"]
+    },
+    {
+      "name": "Mustard",
+      "keywords": ["mustard", "겨자", "머스타드"]
+    },
+    {
+      "name": "Sesame seeds",
+      "keywords": ["sesame", "참깨", "깨", "tahini", "타히니"]
+    },
+    {
+      "name": "Sulphur dioxide and sulphites",
+      "keywords": ["sulphite", "sulfite", "아황산", "sulphur dioxide", "이산화황", "preservative"]
+    },
+    {
+      "name": "Lupin",
+      "keywords": ["lupin", "lupine", "루핀"]
+    },
+    {
+      "name": "Molluscs",
+      "keywords": ["mollusc", "mollusk", "연체동물", "squid", "오징어", "octopus", "문어", "oyster", "굴", "mussel", "홍합", "clam", "조개", "scallop", "가리비"]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+body {
+    background-color: #f6f7f8; /* bg-light */
+    color: rgb(31 41 55); /* text-gray-800 */
+    transition: background-color 0.3s, color 0.3s;
+}
+
+html.dark body {
+    background-color: rgb(17 24 39); /* bg-gray-900 */
+    color: rgb(229 231 235); /* text-gray-200 */
+}
