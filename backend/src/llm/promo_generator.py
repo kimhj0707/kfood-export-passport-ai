@@ -61,21 +61,21 @@ def _dummy_promo_us(text: str, has_risk: bool, product_name: Optional[str] = Non
 
     if has_risk:
         detail_copy = (
-            f"{name} offers an authentic Korean flavor experience with quick preparation. "
+            f"{name} offers a delicious flavor experience with quick preparation. "
             "Prior to distribution, we recommend a label review to ensure full compliance with US labeling requirements."
         )
-        poster_text = "Korean Flavor, Label Review Needed"
+        poster_text = "Great Taste, Easy Prep"
         buyer_pitch = (
-            f"{name} is a shelf-stable Korean food item with strong repeat purchase potential. "
+            f"{name} is a shelf-stable food item with strong repeat purchase potential. "
             "Ideal for grocery, convenience, and specialty channels. "
             "Final label confirmation available upon request before bulk orders."
         )
     else:
         detail_copy = (
-            f"{name} delivers bold Korean taste with the convenience of quick preparation. "
-            "A great addition to any lineup seeking authentic Asian flavors."
+            f"{name} delivers great taste with the convenience of quick preparation. "
+            "A great addition to any product lineup."
         )
-        poster_text = "Bold Korean Taste"
+        poster_text = "Great Taste, Quick Prep"
         buyer_pitch = (
             f"{name} is shelf-stable and ready for distribution across grocery, convenience, and specialty channels. "
             "Its appealing flavor profile supports strong repeat purchase rates. "
@@ -90,25 +90,25 @@ def _dummy_promo_us(text: str, has_risk: bool, product_name: Optional[str] = Non
 
 
 def _dummy_promo_jp(text: str, has_risk: bool, product_name: Optional[str] = None) -> Dict[str, str]:
-    """JP(일본) 전용 일본어/한국어 혼합 fallback 문구."""
+    """JP(일본) 전용 일본어 fallback 문구."""
     name = product_name or "本製品"
 
     if has_risk:
         detail_copy = (
-            f"{name}は韓国の伝統的な味わいを手軽にお楽しみいただけます。"
+            f"{name}は美味しい味わいを手軽にお楽しみいただけます。"
             "日本市場向けにラベル表記の最終確認を推奨いたします。"
         )
-        poster_text = "本格韓国の味"
+        poster_text = "美味しさ、手軽に"
         buyer_pitch = (
             f"{name}は常温保存可能で、スーパー・コンビニ・専門店など幅広いチャネルに適しています。"
             "リピート購入率の高い商品です。サンプル提供・販促協力が可能です。"
         )
     else:
         detail_copy = (
-            f"{name}は韓国本場の味を簡単な調理でお届けします。"
-            "日本の食卓に新しい風味をお届けする一品です。"
+            f"{name}は美味しい味わいを簡単な調理でお届けします。"
+            "食卓に新しい風味をお届けする一品です。"
         )
-        poster_text = "韓国本場の味わい"
+        poster_text = "美味しさをお届け"
         buyer_pitch = (
             f"{name}は常温流通が可能で、小売・量販店・専門チャネルに最適です。"
             "高いリピート率が見込める商品構成です。サンプル・販促素材のご提供が可能です。"
@@ -122,25 +122,25 @@ def _dummy_promo_jp(text: str, has_risk: bool, product_name: Optional[str] = Non
 
 
 def _dummy_promo_vn(text: str, has_risk: bool, product_name: Optional[str] = None) -> Dict[str, str]:
-    """VN(베트남) 전용 베트남어/영어 혼합 fallback 문구."""
+    """VN(베트남) 전용 베트남어 fallback 문구."""
     name = product_name or "Sản phẩm"
 
     if has_risk:
         detail_copy = (
-            f"{name} mang đến hương vị Hàn Quốc đậm đà, dễ chế biến. "
+            f"{name} mang đến hương vị thơm ngon, dễ chế biến. "
             "Khuyến nghị kiểm tra nhãn mác trước khi phân phối tại Việt Nam."
         )
-        poster_text = "Hương vị Hàn Quốc"
+        poster_text = "Ngon miệng, Tiện lợi"
         buyer_pitch = (
             f"{name} là sản phẩm bảo quản thường, phù hợp với siêu thị, cửa hàng tiện lợi và kênh đặc sản. "
             "Tiềm năng mua lại cao. Hỗ trợ mẫu thử và chương trình khuyến mãi."
         )
     else:
         detail_copy = (
-            f"{name} đem lại trải nghiệm ẩm thực Hàn Quốc chính gốc với cách chế biến nhanh gọn. "
-            "Lựa chọn lý tưởng cho thực khách yêu thích hương vị châu Á."
+            f"{name} đem lại trải nghiệm ẩm thực ngon miệng với cách chế biến nhanh gọn. "
+            "Lựa chọn lý tưởng cho thực khách."
         )
-        poster_text = "Vị Hàn đích thực"
+        poster_text = "Ngon và Tiện lợi"
         buyer_pitch = (
             f"{name} bảo quản thường, sẵn sàng phân phối qua các kênh grocery, convenience, specialty. "
             "Tỷ lệ mua lại cao, hỗ trợ mẫu và khuyến mãi."
@@ -180,7 +180,7 @@ def _build_prompt(text: str, country: str, product_name: Optional[str]) -> str:
         lang_instruction = "IMPORTANT: All output text should be in Vietnamese (Tiếng Việt)."
 
     return f"""
-You are generating export marketing copy for a Korean food product.
+You are generating export marketing copy for a food product.
 
 {lang_instruction}
 
@@ -202,22 +202,25 @@ Safety rules (must follow):
 - No exaggeration or guarantees (avoid words like "best", "number one", "miracle").
 - Do not invent claims that are not supported by the input.
 - Do NOT assume or state specific country of origin unless clearly stated in the input.
+- Do NOT assume the product is Korean food unless explicitly stated. Analyze the actual product type from the input text.
 
 Style requirements:
 - Do NOT include storage instructions, expiration guidance, or handling tips.
 - Keep writing concrete and product-focused.
 - If the input suggests compliance/label risks, add ONE neutral line recommending label review.
 - Avoid the word "consumers"; use "shoppers", "customers", or channel-focused language instead.
+- Base the marketing copy on the ACTUAL product characteristics identified from the input text.
 
 Content requirements:
 1) detail_copy:
    - 2-3 sentences
    - Focus on taste profile + quick preparation convenience + key ingredients if present
    - No long lists
+   - Describe the actual product type (cereal, snack, beverage, sauce, etc.)
 
 2) poster_text:
    - 3 to 6 words ONLY
-   - Punchy banner tagline
+   - Punchy banner tagline based on actual product features
    - No exclamation marks
 
 3) buyer_pitch:
@@ -315,7 +318,7 @@ def _generate_with_openai(text: str, country: str, product_name: Optional[str]) 
             poster = " ".join(words[:6])
 
         if not poster:
-            poster = "Bold Korean Flavor"
+            poster = "Great Taste Awaits"
 
         return {
             "detail_copy": data["detail_copy"].strip(),
