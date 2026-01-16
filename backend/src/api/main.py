@@ -246,15 +246,13 @@ async def api_list_reports(
 # =============================================================================
 
 @app.get("/api/reports/{report_id}/pdf")
-async def api_download_pdf(report_id: str):
+async def api_download_pdf(
+    report_id: str,
+    is_expert: bool = Query(False, description="전문가용 PDF 여부"),
+    expert_comment: str = Query("", description="전문가 코멘트")
+):
     """
     리포트 PDF 다운로드
-
-    Args:
-        report_id: 리포트 ID
-
-    Returns:
-        PDF 파일
     """
     report = get_report(report_id)
 
@@ -263,19 +261,24 @@ async def api_download_pdf(report_id: str):
 
     try:
         pdf_bytes = generate_pdf_report(
+            report_id=report["id"],
             country=report["country"],
             ocr_engine=report["ocr_engine"],
             allergens=report["allergens"],
             nutrition=report["nutrition"],
             risks=report["risks"],
-            promo=report["promo"]
+            promo=report["promo"],
+            is_expert=is_expert,
+            expert_comment=expert_comment
         )
 
+        filename = f"kfood_report_{'expert_' if is_expert else ''}{report_id}.pdf"
+        
         return Response(
             content=pdf_bytes,
             media_type="application/pdf",
             headers={
-                "Content-Disposition": f"attachment; filename=kfood_report_{report_id}.pdf"
+                "Content-Disposition": f"attachment; filename={filename}"
             }
         )
 

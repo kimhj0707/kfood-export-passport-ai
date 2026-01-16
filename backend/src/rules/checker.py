@@ -207,39 +207,92 @@ def check_risks(text: str, country: str = "US") -> List[Dict[str, str]]:
                 f"라벨에 '{allergen_name}'에 대한 명시적인 알레르기 경고(예: 'Contains {allergen_name}')가 있는지 확인하세요."
             )
 
+
+
             risk_item = {
+
                 "allergen": allergen_name,
+
                 "risk": (
+
                     f"[{country_name}] 필수 알레르겐 '{allergen_name}' 포함 가능성이 있으나, "
+
                     "명시적인 경고 문구가 확인되지 않았습니다."
+
                 ),
+
                 "severity": "HIGH",
+
                 "confidence": confidence,
+
                 "details": details,
+
                 "evidence": {
+
                     "matched": matched_sentences,
+
                     "hint": f"'{', '.join(found_keywords)}' 키워드가 발견되었습니다."
+
                 },
-                "next_step": next_step
+
+                "next_step": next_step,
+
+                "expert_check_required": True  # HIGH severity or low confidence
+
             }
+
             risks.append(risk_item)
 
+
+
     if not detected_any:
+
         return [{
+
             "allergen": "None",
+
             "risk": f"[{country_name}] 주요 알레르기 관련 키워드가 감지되지 않았습니다.",
+
             "severity": "LOW",
+
             "confidence": 0.9,
-            "evidence": {"matched": [], "hint": "No major allergen keywords found in the text."}
+
+            "evidence": {"matched": [], "hint": "No major allergen keywords found in the text."},
+
+            "expert_check_required": False
+
         }]
 
+
+
     if not risks:
+
         return [{
-            "allergen": "PASS",
-            "risk": f"[{country_name}] 주요 알레르기 키워드가 감지되었고, 관련 경고 문구가 함께 발견되어 규정을 준수하는 것으로 보입니다.",
-            "severity": "LOW",
-            "confidence": 0.95,
-            "evidence": {"matched": [], "hint": "Allergen keywords were found with explicit warning statements."}
+
+        "allergen": "PASS",
+
+        "risk": f"[{country_name}] 주요 알레르기 키워드가 감지되었고, 관련 경고 문구가 함께 발견되어 규정을 준수하는 것으로 보입니다.",
+
+        "severity": "LOW",
+
+        "confidence": 0.95,
+
+        "evidence": {"matched": [], "hint": "Allergen keywords were found with explicit warning statements."},
+
+        "expert_check_required": False
+
         }]
+
+
+
+    # 리스크 항목별로 expert_check_required 최종 결정
+
+    for risk in risks:
+
+        if risk['confidence'] < 0.7:
+
+            risk['expert_check_required'] = True
+
+    
 
     return risks

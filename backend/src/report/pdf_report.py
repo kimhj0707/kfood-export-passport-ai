@@ -26,20 +26,99 @@ def _register_korean_font():
     return "Helvetica"
 
 
+def generate_expert_pdf_report(
+    report_id: str,
+    country: str,
+    risks: List[Dict[str, Any]],
+    expert_comment: str = ""
+) -> bytes:
+    """
+    전문가 검토용 PDF 리포트를 생성한다.
+    """
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=20*mm, bottomMargin=20*mm)
+
+    font_name = _register_korean_font()
+    styles = getSampleStyleSheet()
+    
+    # 스타일 정의
+    title_style = ParagraphStyle("TitleKR", parent=styles["Title"], fontName=font_name, fontSize=16)
+    heading_style = ParagraphStyle("HeadingKR", parent=styles["h2"], fontName=font_name, fontSize=12, spaceBefore=10, spaceAfter=4)
+    body_style = ParagraphStyle("BodyKR", parent=styles["Normal"], fontName=font_name, fontSize=10, leading=14)
+    code_style = ParagraphStyle("Code", parent=styles["Code"], fontName=font_name, fontSize=9, leading=12, textColor=colors.darkblue)
+
+    elements = []
+
+    # Header
+    elements.append(Paragraph("[Expert Review Copy]", styles['h1']))
+    elements.append(Paragraph("This report is generated for preliminary compliance review support. Final determination must be made by a qualified expert.", body_style))
+    elements.append(Spacer(1, 10*mm))
+    
+    # 1. 요약
+    elements.append(Paragraph("1. 분석 요약", heading_style))
+    summary_data = [
+        ["Report ID", report_id],
+        ["대상 국가", country],
+        ["분석 목적", "수출 라벨 사전 검토"],
+    ]
+    summary_table = Table(summary_data, colWidths=[50*mm, 120*mm])
+    summary_table.setStyle(TableStyle([('GRID', (0,0), (-1,-1), 0.5, colors.grey), ('FONTNAME', (0,0), (-1,-1), font_name)]))
+    elements.append(summary_table)
+    elements.append(Spacer(1, 8*mm))
+
+    # 2. 핵심 검토 사항
+    top_risks = [r for r in risks if r.get('severity') == 'HIGH']
+    if top_risks:
+        elements.append(Paragraph("2. 핵심 검토 사항 (Top Risks)", heading_style))
+        for risk in top_risks:
+            elements.append(Paragraph(f"• {risk.get('title', risk.get('risk'))} (확신도: {risk.get('confidence', 0)*100:.0f}%)", body_style))
+        elements.append(Spacer(1, 8*mm))
+
+    # 3. 전문가 확인 요청 체크리스트
+    expert_checks = [r for r in risks if r.get('expert_check_required')]
+    if expert_checks:
+        elements.append(Paragraph("3. 전문가 확인 요청 항목", heading_style))
+        for check in expert_checks:
+            p = Paragraph(f"☐ {check.get('next_step', 'N/A')}", body_style)
+            elements.append(p)
+            if check.get('evidence', {}).get('matched'):
+                evidence_text = "  <font size=8><b>증거(OCR):</b> " + ", ".join([f"'{e}'" for e in check['evidence']['matched']]) + "</font>"
+                elements.append(Paragraph(evidence_text, body_style))
+            elements.append(Spacer(1, 4*mm))
+        elements.append(Spacer(1, 8*mm))
+
+    # 4. 전문가 코멘트
+    elements.append(Paragraph("4. 전문가 의견", heading_style))
+    elements.append(Paragraph(expert_comment or " ", body_style))
+    
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer.getvalue()
+
+
 def generate_pdf_report(
+    report_id: str,
     country: str,
     ocr_engine: str,
     allergens: List[str],
     nutrition: Dict[str, Any],
     risks: List[Dict[str, str]],
-    promo: Dict[str, str]
+    promo: Dict[str, str],
+    is_expert: bool = False,
+    expert_comment: str = ""
 ) -> bytes:
     """
     분석 결과를 PDF 리포트로 생성한다.
-
-    Returns:
-        PDF 파일 bytes
+    is_expert 플래그에 따라 일반용 또는 전문가용 리포트 생성.
     """
+    if is_expert:
+        return generate_expert_pdf_report(
+            report_id=report_id,
+            country=country,
+            risks=risks,
+            expert_comment=expert_comment
+        )
+        
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=20*mm, bottomMargin=20*mm)
 

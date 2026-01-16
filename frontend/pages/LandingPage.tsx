@@ -1,8 +1,23 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getHistory } from "../services/api";
+import { AnalysisReport } from "../types";
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
+  const [recentReports, setRecentReports] = useState<AnalysisReport[]>([]);
+
+  useEffect(() => {
+    const fetchRecentReports = async () => {
+      try {
+        const { reports } = await getHistory(5, 0);
+        setRecentReports(reports);
+      } catch (error) {
+        console.error("Failed to fetch recent reports:", error);
+      }
+    };
+    fetchRecentReports();
+  }, []);
 
   return (
     <div className="flex flex-col">
@@ -17,7 +32,7 @@ const LandingPage: React.FC = () => {
               }}
             ></div>
             <div className="relative z-10 flex flex-col gap-6 max-w-[850px]">
-              <h1 className="text-white text-3xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tight break-keep">
+              <h1 className="text-white text-3xl md:text-5xl lg:text-6xl font-black leading-relaxed tracking-wide break-keep">
                 수출 준비는 문서가 아니라, 패키지에서 시작됩니다
               </h1>
               <p className="text-gray-200 text-lg md:text-xl font-medium max-w-2xl mx-auto break-keep">
@@ -103,6 +118,36 @@ const LandingPage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {recentReports.length > 0 && (
+        <section className="w-full px-4 md:px-10 lg:px-40 py-16">
+          <div className="max-w-[1200px] mx-auto">
+            <div className="flex justify-between items-center mb-8">
+              <h3 className="text-[#121617] text-3xl font-bold">최근 분석 리포트</h3>
+              <button
+                onClick={() => navigate('/history')}
+                className="text-primary font-bold flex items-center gap-1 hover:underline"
+              >
+                <span>모두 보기</span>
+                <span className="material-symbols-outlined">arrow_forward</span>
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {recentReports.map((report) => (
+                <div
+                  key={report.id}
+                  onClick={() => navigate(`/reports/${report.id}`)}
+                  className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-primary transition-all cursor-pointer"
+                >
+                  <p className="font-bold text-lg text-gray-800">Report #{report.id}</p>
+                  <p className="text-sm text-gray-500 mt-2">Country: {report.country}</p>
+                  <p className="text-sm text-gray-500">Created: {new Date(report.createdAt).toLocaleDateString()}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 };

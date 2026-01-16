@@ -66,6 +66,7 @@ function convertRisks(risks: ApiRiskItem[]): RegulationCheck[] {
     evidence: risk.evidence,
     details: risk.details,
     next_step: risk.next_step,
+    expert_check_required: risk.expert_check_required,
   }));
 }
 
@@ -334,9 +335,16 @@ export const deleteReport = async (id: string): Promise<boolean> => {
 /**
  * PDF 다운로드
  */
-export const downloadPdf = async (id: string): Promise<void> => {
+export const downloadPdf = async (id: string, options?: { isExpert?: boolean; expertComment?: string }): Promise<void> => {
   try {
-    const url = `${API_BASE_URL}/api/reports/${id}/pdf`;
+    const params = new URLSearchParams();
+    if (options?.isExpert) {
+      params.append('is_expert', 'true');
+    }
+    if (options?.expertComment) {
+      params.append('expert_comment', options.expertComment);
+    }
+    const url = `${API_BASE_URL}/api/reports/${id}/pdf?${params.toString()}`;
 
     // 새 탭에서 PDF 다운로드 (브라우저가 처리)
     window.open(url, "_blank");

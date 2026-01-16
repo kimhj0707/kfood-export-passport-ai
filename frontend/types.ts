@@ -39,6 +39,7 @@ export interface RegulationCheck {
     reason?: string;
   };
   next_step?: string;
+  expert_check_required: boolean;
 }
 
 export interface MarketingSuggestion {
@@ -58,6 +59,7 @@ export interface ApiRiskItem {
     reason?: string;
   };
   next_step?: string;
+  expert_check_required: boolean;
 }
 
 export interface ApiPromoContent {
