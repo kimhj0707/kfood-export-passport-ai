@@ -4,9 +4,19 @@
 
 @layer base {
   html,
-  body {
+  body,
+  #root {
     @apply antialiased;
-    overflow-x: hidden; /* 추가: 가로 스크롤을 원천적으로 방지 */
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  /* iOS safe-area 대응 */
+  @supports (padding: env(safe-area-inset-top)) {
+    html {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
   }
 }
 

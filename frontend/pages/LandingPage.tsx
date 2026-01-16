@@ -57,7 +57,7 @@ const LandingPage: React.FC = () => {
                 수출 규제와 마케팅 기회를 함께 분석하세요.
               </span>
             </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <div className="mt-8 flex flex-wrap justify-start gap-4">
               <button
                 onClick={() => navigate("/analyze")}
                 className="flex h-12 sm:h-14 items-center justify-center rounded-full px-6 sm:px-8 text-base sm:text-lg font-bold transition-all hover:scale-105 bg-slate-800 text-white hover:bg-slate-700 dark:bg-primary dark:hover:bg-primary-hover"
@@ -73,8 +73,8 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* 3-Step Process Section */}
-      <section className="w-full py-20 px-4">
-        <div className="max-w-7xl mx-auto">
+      <section className="w-full py-20 px-4 overflow-hidden">
+        <div className="max-w-7xl mx-auto overflow-visible">
           <div className="text-center mb-16">
             <h3 className="text-4xl font-bold text-text-primary">
               간편한 3단계 프로세스
@@ -83,8 +83,8 @@ const LandingPage: React.FC = () => {
               전문적인 분석 결과를 단 몇 분 만에 확인하세요.
             </p>
           </div>
-          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="absolute top-1/2 left-0 w-full h-0.5 bg-card-border hidden md:block"></div>
+          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-8 pt-16">
+            <div className="absolute top-16 left-0 right-0 h-0.5 bg-card-border hidden md:block" style={{top: 'calc(4rem + 50%)'}}></div>
 
             <div className="relative flex flex-col items-center text-center p-8 rounded-2xl border border-card-border bg-card shadow-lg dark:backdrop-blur-md">
               <div className="absolute -top-12 size-24 rounded-full bg-slate-100 dark:bg-slate-900 border-4 border-card-border flex items-center justify-center text-primary shadow-lg z-10">

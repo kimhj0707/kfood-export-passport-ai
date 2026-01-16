@@ -8,16 +8,16 @@ const Header: React.FC = () => {
   const { isDark, toggleTheme } = useTheme();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-solid border-card-border bg-background/80 backdrop-blur-md px-4 md:px-10 lg:px-40 py-3">
-      <div className="flex items-center justify-between whitespace-nowrap max-w-7xl mx-auto">
-        <Link to="/">
-          <div className="flex items-center gap-3">
-            <Logo className="w-8 h-8" />
-            <h2 className="text-text-primary text-lg font-bold leading-tight tracking-tight">K-Food Export Passport</h2>
+    <header className="sticky top-0 z-50 w-full border-b border-solid border-card-border bg-background/80 backdrop-blur-md px-4 md:px-10 lg:px-40 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+      <div className="flex items-center justify-between max-w-7xl mx-auto min-w-0">
+        <Link to="/" className="flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Logo className="w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0" />
+            <h2 className="text-text-primary text-sm sm:text-lg font-bold leading-tight tracking-tight whitespace-nowrap">K-Food Export Passport</h2>
           </div>
         </Link>
-        <div className="flex flex-1 justify-end gap-6 items-center">
-          <nav className="flex items-center gap-6">
+        <div className="flex flex-1 justify-end gap-3 sm:gap-6 items-center">
+          <nav className="flex items-center gap-3 sm:gap-6">
             <Link
               to="/analyze"
               className={`text-sm font-semibold transition-colors hover:text-primary ${location.pathname === '/analyze' ? 'text-primary' : 'text-text-secondary'}`}
