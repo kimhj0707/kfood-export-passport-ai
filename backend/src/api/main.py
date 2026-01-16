@@ -18,6 +18,7 @@ from src.ocr.ocr_tesseract import extract_text
 from src.rules.checker import check_risks
 from src.rules.allergen_parser import extract_allergens
 from src.rules.nutrition_parser import parse_nutrition
+from src.rules.label_validator import validate_label_image
 from src.llm.promo_generator import generate_promo
 from src.report.pdf_report import generate_pdf_report
 
@@ -133,6 +134,11 @@ async def api_analyze(
 
         if ocr_error:
             raise HTTPException(status_code=400, detail=ocr_error)
+
+        # 라벨 이미지 검증
+        is_valid, validation_message, validation_details = validate_label_image(ocr_text)
+        if not is_valid:
+            raise HTTPException(status_code=400, detail=validation_message)
 
         # 분석
         allergens = extract_allergens(ocr_text)
@@ -336,6 +342,11 @@ async def legacy_analyze(
         if ocr_error:
             raise HTTPException(status_code=400, detail=ocr_error)
 
+        # 라벨 이미지 검증
+        is_valid, validation_message, validation_details = validate_label_image(ocr_text)
+        if not is_valid:
+            raise HTTPException(status_code=400, detail=validation_message)
+
         allergens = extract_allergens(ocr_text)
         nutrition = parse_nutrition(ocr_text)
         risks = check_risks(ocr_text, country=country)
@@ -379,6 +390,11 @@ async def legacy_report(
 
         if ocr_error:
             raise HTTPException(status_code=400, detail=ocr_error)
+
+        # 라벨 이미지 검증
+        is_valid, validation_message, validation_details = validate_label_image(ocr_text)
+        if not is_valid:
+            raise HTTPException(status_code=400, detail=validation_message)
 
         allergens = extract_allergens(ocr_text)
         nutrition = parse_nutrition(ocr_text)
