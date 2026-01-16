@@ -168,7 +168,7 @@ const AnalyzePage: React.FC = () => {
                   <span className="material-symbols-outlined text-sm">mail</span>이메일 (선택 사항)
                 </label>
                 <input id="email" type="email" placeholder="user@example.com" value={emailInput} onChange={(e) => setEmailInput(e.target.value)}
-                  className="w-full rounded-lg border border-card-border bg-card text-text-primary placeholder:text-text-muted py-3 px-4 text-sm focus:border-primary focus:ring-0" />
+                  className="w-full rounded-lg border border-card-border bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 py-3 px-4 text-sm focus:border-primary focus:ring-0" />
                 <p className="text-xs text-text-muted">이메일을 입력하시면 분석 이력이 해당 이메일로 식별됩니다.</p>
               </div>
 
@@ -179,7 +179,7 @@ const AnalyzePage: React.FC = () => {
                   </label>
                   <div className="relative">
                     <select id="country" value={country} onChange={(e) => setCountry(e.target.value)}
-                      className="block w-full rounded-lg border border-card-border bg-card py-3 px-4 text-text-primary focus:border-primary focus:ring-0 text-sm appearance-none cursor-pointer">
+                      className="block w-full rounded-lg border border-card-border bg-white dark:bg-slate-800 py-3 px-4 text-slate-900 dark:text-white focus:border-primary focus:ring-0 text-sm appearance-none cursor-pointer">
                       <option value="US">미국 (USA)</option><option value="JP">일본 (Japan)</option><option value="VN">베트남 (Vietnam)</option><option value="EU">유럽연합 (EU)</option><option value="CN">중국 (China)</option>
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-text-muted"><span className="material-symbols-outlined">expand_more</span></div>
@@ -191,7 +191,7 @@ const AnalyzePage: React.FC = () => {
                   </label>
                   <div className="relative">
                     <select id="ocr" value={ocrEngine} onChange={(e) => setOcrEngine(e.target.value)}
-                      className="block w-full rounded-lg border border-card-border bg-card py-3 px-4 text-text-primary focus:border-primary focus:ring-0 text-sm appearance-none cursor-pointer">
+                      className="block w-full rounded-lg border border-card-border bg-white dark:bg-slate-800 py-3 px-4 text-slate-900 dark:text-white focus:border-primary focus:ring-0 text-sm appearance-none cursor-pointer">
                       <option value="google">Google Cloud Vision</option><option value="tesseract">Tesseract</option>
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-text-muted"><span className="material-symbols-outlined">expand_more</span></div>
