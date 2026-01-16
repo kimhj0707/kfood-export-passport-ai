@@ -13,6 +13,7 @@ st.set_page_config(page_title="K-Food Export Passport", layout="wide")
 st.title("K-Food Export Passport AI")
 st.markdown("식품 라벨 이미지를 업로드하고 **분석 시작** 버튼을 클릭하세요.")
 
+
 col_ocr, col_country = st.columns(2)
 with col_ocr:
     ocr_engine = st.selectbox(
