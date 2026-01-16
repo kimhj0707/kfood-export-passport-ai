@@ -58,7 +58,7 @@ if st.button("분석 시작", disabled=(uploaded_file is None)):
     st.subheader("1. OCR 추출 텍스트")
     st.text_area("추출된 텍스트", ocr_text, height=200)
 
-    st.subheader("2. 알레르겐 자동 추출")
+    st.subheader("2. 알레르기 자동 추출")
     allergens = extract_allergens(ocr_text)
     if allergens:
         cols = st.columns(min(len(allergens), 5))
@@ -66,7 +66,7 @@ if st.button("분석 시작", disabled=(uploaded_file is None)):
             with cols[idx % 5]:
                 st.error(f"⚠️ {allergen}")
     else:
-        st.info("알레르겐 표기 없음 또는 인식 실패")
+        st.info("알레르기 표기 없음 또는 인식 실패")
 
     st.subheader("3. 영양성분 분석")
     nutrition = parse_nutrition(ocr_text)

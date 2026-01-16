@@ -14,6 +14,7 @@ export interface AnalysisReport {
   nutrients: Nutrient[];
   regulations: RegulationCheck[];
   marketing: MarketingSuggestion;
+  userEmail?: string;
 }
 
 export interface Nutrient {
@@ -63,6 +64,7 @@ export interface ApiReportResponse {
   nutrition: Record<string, { value: number; unit: string }>;
   risks: ApiRiskItem[];
   promo: ApiPromoContent;
+  user_email?: string;
 }
 
 export interface ApiRiskItem {

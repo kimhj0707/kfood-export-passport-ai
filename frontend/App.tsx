@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import AnalyzePage from './pages/AnalyzePage';
@@ -10,8 +10,20 @@ import Footer from './components/Footer';
 import ToastContainer from './components/Toast';
 import { ToastProvider } from './contexts/ToastContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { v4 as uuidv4 } from 'uuid';
 
 const App: React.FC = () => {
+  useEffect(() => {
+    let userId = localStorage.getItem('user_id');
+    if (!userId) {
+      userId = uuidv4();
+      localStorage.setItem('user_id', userId);
+      console.log('New user_id generated:', userId);
+    } else {
+      console.log('Existing user_id:', userId);
+    }
+  }, []);
+
   return (
     <ThemeProvider>
       <ToastProvider>

@@ -39,7 +39,7 @@ backend/
 │   │   ├── ocr_google.py       # Google Vision OCR
 │   │   └── ocr_tesseract.py    # Tesseract OCR
 │   ├── rules/
-│   │   ├── allergen_parser.py  # 알레르겐 추출
+│   │   ├── allergen_parser.py  # 알레르기 추출
 │   │   ├── nutrition_parser.py # 영양성분 파싱
 │   │   ├── checker.py          # 규칙 체크 엔진
 │   │   ├── us_fda.json

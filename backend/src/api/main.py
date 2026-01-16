@@ -19,7 +19,7 @@ from src.rules.nutrition_parser import parse_nutrition
 from src.llm.promo_generator import generate_promo
 from src.report.pdf_report import generate_pdf_report
 
-from src.api.db import save_report, get_report, get_reports, delete_report, count_reports
+from src.api.db import save_report, get_report, get_reports, delete_report, count_reports, upsert_user_email, get_user_email, unlink_user_email
 from src.api.models import (
     AnalyzeResponse,
     ReportResponse,
@@ -54,6 +54,60 @@ def health_check():
 
 
 # =============================================================================
+# 사용자 관리 API
+# =============================================================================
+
+@app.post("/api/users/link-email")
+async def api_link_email(
+    user_id: str = Form(..., description="사용자 ID"),
+    email: str = Form(..., description="연결할 이메일 주소")
+):
+    """
+    사용자 ID와 이메일을 연결 (라이트 회원 가입)
+
+    Args:
+        user_id: 클라이언트의 로컬 스토리지에 저장된 고유 사용자 ID
+        email: 사용자 이메일 주소
+
+    Returns:
+        성공 메시지
+    """
+    # 간단한 이메일 형식 검증 (실제로는 더 복잡한 검증 필요)
+    if not "@" in email or not "." in email:
+        raise HTTPException(status_code=400, detail="유효하지 않은 이메일 형식입니다.")
+
+    try:
+        upsert_user_email(user_id, email)
+        return {"message": "이메일이 성공적으로 연결되었습니다."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"이메일 연결 중 오류 발생: {str(e)}")
+
+
+@app.get("/api/users/{user_id}")
+async def api_get_user(user_id: str):
+    """
+    사용자 ID로 이메일 조회
+    """
+    email = get_user_email(user_id)
+    if email is None:
+        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+    return {"email": email}
+
+@app.delete("/api/users/{user_id}/email")
+async def api_unlink_email(user_id: str):
+    """
+    사용자 ID에 연결된 이메일 연결 해제
+    """
+    try:
+        success = unlink_user_email(user_id)
+        if not success:
+            raise HTTPException(status_code=404, detail="사용자를 찾을 수 없거나 이메일이 연결되어 있지 않습니다.")
+        return {"message": "이메일 연결이 해제되었습니다."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"이메일 연결 해제 중 오류 발생: {str(e)}")
+
+
+# =============================================================================
 # 분석 API (신규: DB 저장 + report_id 발급)
 # =============================================================================
 
@@ -61,7 +115,8 @@ def health_check():
 async def api_analyze(
     file: UploadFile = File(..., description="라벨 이미지 파일"),
     country: str = Form(default="US", description="수출국 코드 (US/JP/VN)"),
-    ocr_engine: str = Form(default="google", description="OCR 엔진 (google/tesseract)")
+    ocr_engine: str = Form(default="google", description="OCR 엔진 (google/tesseract)"),
+    user_id: Optional[str] = Form(default="anonymous", description="사용자 ID")
 ):
     """
     이미지 업로드 → OCR → 규칙 체크 → 홍보 문구 생성 → DB 저장
@@ -90,6 +145,7 @@ async def api_analyze(
 
         # DB 저장
         report_id = save_report(
+            user_id=user_id,
             country=country,
             ocr_engine=ocr_engine,
             ocr_text=ocr_text,
@@ -107,7 +163,8 @@ async def api_analyze(
             "allergens": allergens,
             "nutrition": nutrition,
             "risks": risks,
-            "promo": promo
+            "promo": promo,
+            "user_id": user_id
         })
 
     except HTTPException:
@@ -121,20 +178,24 @@ async def api_analyze(
 # =============================================================================
 
 @app.get("/api/reports/{report_id}", response_model=ReportResponse)
-async def api_get_report(report_id: str):
+async def api_get_report(report_id: str, user_id: Optional[str] = Query(default=None, description="사용자 ID")):
     """
     특정 리포트 조회
 
     Args:
         report_id: 리포트 ID (8자리)
+        user_id: 사용자 ID (선택)
 
     Returns:
         리포트 상세 정보
     """
-    report = get_report(report_id)
+    report = get_report(report_id, user_id)
 
     if not report:
-        raise HTTPException(status_code=404, detail=f"Report not found: {report_id}")
+        raise HTTPException(status_code=404, detail=f"Report not found or not accessible: {report_id}")
+    
+    # user_id에 연결된 이메일 주소 추가
+    report["user_email"] = get_user_email(report["user_id"])
 
     return JSONResponse(content=report)
 
@@ -145,7 +206,8 @@ async def api_list_reports(
     offset: int = Query(default=0, ge=0, description="시작 위치"),
     country: Optional[str] = Query(default=None, description="국가 필터 (US/JP/VN)"),
     date_from: Optional[str] = Query(default=None, description="시작 날짜 (YYYY-MM-DD)"),
-    date_to: Optional[str] = Query(default=None, description="종료 날짜 (YYYY-MM-DD)")
+    date_to: Optional[str] = Query(default=None, description="종료 날짜 (YYYY-MM-DD)"),
+    user_id: Optional[str] = Query(default=None, description="사용자 ID 필터")
 ):
     """
     최근 리포트 목록 조회 (히스토리)
@@ -156,6 +218,7 @@ async def api_list_reports(
         country: 국가 필터 (선택)
         date_from: 시작 날짜 필터 (선택)
         date_to: 종료 날짜 필터 (선택)
+        user_id: 사용자 ID 필터 (선택)
 
     Returns:
         리포트 목록 (최신순)
@@ -165,9 +228,15 @@ async def api_list_reports(
         offset=offset,
         country=country,
         date_from=date_from,
-        date_to=date_to
+        date_to=date_to,
+        user_id=user_id
     )
-    total = count_reports(country=country, date_from=date_from, date_to=date_to)
+    total = count_reports(
+        country=country,
+        date_from=date_from,
+        date_to=date_to,
+        user_id=user_id
+    )
 
     return JSONResponse(content={
         "reports": reports,

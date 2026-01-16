@@ -25,6 +25,7 @@ def init_db():
             CREATE TABLE IF NOT EXISTS reports (
                 id TEXT PRIMARY KEY,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                user_id TEXT NOT NULL DEFAULT 'anonymous',
                 country TEXT NOT NULL,
                 ocr_engine TEXT NOT NULL,
                 ocr_text TEXT,
@@ -32,7 +33,14 @@ def init_db():
                 nutrition TEXT,
                 risks TEXT,
                 promo TEXT
-            )
+            );
+        """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id TEXT PRIMARY KEY,
+                email TEXT UNIQUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
         """)
         conn.commit()
 
@@ -54,6 +62,7 @@ def generate_report_id() -> str:
 
 
 def save_report(
+    user_id: str,
     country: str,
     ocr_engine: str,
     ocr_text: str,
@@ -73,10 +82,11 @@ def save_report(
     with get_connection() as conn:
         cursor = conn.cursor()
         cursor.execute("""
-            INSERT INTO reports (id, country, ocr_engine, ocr_text, allergens, nutrition, risks, promo)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO reports (id, user_id, country, ocr_engine, ocr_text, allergens, nutrition, risks, promo)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             report_id,
+            user_id,
             country,
             ocr_engine,
             ocr_text,
@@ -90,16 +100,27 @@ def save_report(
     return report_id
 
 
-def get_report(report_id: str) -> Optional[Dict[str, Any]]:
+def get_report(report_id: str, user_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
     """
     report_id로 단일 리포트 조회
+
+    Args:
+        report_id: 리포트 ID
+        user_id: 리포트 소유자 ID (필터링 및 검증용)
 
     Returns:
         리포트 딕셔너리 또는 None
     """
     with get_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM reports WHERE id = ?", (report_id,))
+        query = "SELECT * FROM reports WHERE id = ?"
+        params = [report_id]
+
+        if user_id:
+            query += " AND user_id = ?"
+            params.append(user_id)
+
+        cursor.execute(query, params)
         row = cursor.fetchone()
 
         if not row:
@@ -113,7 +134,8 @@ def get_reports(
     offset: int = 0,
     country: Optional[str] = None,
     date_from: Optional[str] = None,
-    date_to: Optional[str] = None
+    date_to: Optional[str] = None,
+    user_id: Optional[str] = None
 ) -> List[Dict[str, Any]]:
     """
     최근 리포트 목록 조회 (히스토리용)
@@ -124,6 +146,7 @@ def get_reports(
         country: 국가 필터 (선택)
         date_from: 시작 날짜 필터 (YYYY-MM-DD)
         date_to: 종료 날짜 필터 (YYYY-MM-DD)
+        user_id: 사용자 ID 필터 (선택)
 
     Returns:
         리포트 목록 (최신순)
@@ -146,6 +169,10 @@ def get_reports(
         if date_to:
             conditions.append("DATE(created_at) <= ?")
             params.append(date_to)
+            
+        if user_id:
+            conditions.append("user_id = ?")
+            params.append(user_id)
 
         where_clause = ""
         if conditions:
@@ -177,7 +204,8 @@ def get_reports(
 def count_reports(
     country: Optional[str] = None,
     date_from: Optional[str] = None,
-    date_to: Optional[str] = None
+    date_to: Optional[str] = None,
+    user_id: Optional[str] = None
 ) -> int:
     """
     필터 조건에 맞는 리포트 총 개수
@@ -186,6 +214,7 @@ def count_reports(
         country: 국가 필터 (선택)
         date_from: 시작 날짜 필터 (YYYY-MM-DD)
         date_to: 종료 날짜 필터 (YYYY-MM-DD)
+        user_id: 사용자 ID 필터 (선택)
 
     Returns:
         총 리포트 개수
@@ -207,6 +236,10 @@ def count_reports(
         if date_to:
             conditions.append("DATE(created_at) <= ?")
             params.append(date_to)
+            
+        if user_id:
+            conditions.append("user_id = ?")
+            params.append(user_id)
 
         where_clause = ""
         if conditions:
@@ -233,11 +266,45 @@ def delete_report(report_id: str) -> bool:
         return cursor.rowcount > 0
 
 
+def upsert_user_email(user_id: str, email: str) -> None:
+    """
+    사용자 ID와 이메일을 users 테이블에 upsert (없으면 삽입, 있으면 업데이트)
+    """
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO users (id, email) VALUES (?, ?) ON CONFLICT(id) DO UPDATE SET email = excluded.email, created_at = CURRENT_TIMESTAMP",
+            (user_id, email)
+        )
+        conn.commit()
+
+def unlink_user_email(user_id: str) -> bool:
+    """
+    사용자 ID의 이메일 연결을 해제 (이메일 필드를 NULL로 설정)
+    """
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET email = NULL WHERE id = ?", (user_id,))
+        conn.commit()
+        return cursor.rowcount > 0
+
+def get_user_email(user_id: str) -> Optional[str]:
+    """
+    user_id로 사용자 이메일 조회
+    """
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT email FROM users WHERE id = ?", (user_id,))
+        row = cursor.fetchone()
+        return row["email"] if row else None
+
+
 def _row_to_dict(row: sqlite3.Row) -> Dict[str, Any]:
     """sqlite3.Row를 딕셔너리로 변환 (JSON 필드 파싱 포함)"""
     return {
         "id": row["id"],
         "created_at": row["created_at"],
+        "user_id": row["user_id"],
         "country": row["country"],
         "ocr_engine": row["ocr_engine"],
         "ocr_text": row["ocr_text"],

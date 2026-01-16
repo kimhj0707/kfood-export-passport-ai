@@ -1,18 +1,18 @@
 # K-Food Export Passport AI
 
 식품 라벨 이미지를 업로드하면
-**OCR → 알레르겐/영양성분 자동 분석 → 수출국별 규정 체크 → 홍보 문구 생성**까지
+**OCR → 알레르기/영양성분 자동 분석 → 수출국별 규정 체크 → 홍보 문구 생성**까지
 한 번에 수행하는 식품 수출 지원 AI 서비스입니다.
 
 ---
 
 ## Live Demo
 
-| 서비스 | URL |
-|--------|-----|
-| **프론트엔드** | https://kfood-export-passport-ai-frontend.vercel.app |
-| **백엔드 API** | https://kfood-api-233469550454.asia-northeast3.run.app |
-| **API 문서** | https://kfood-api-233469550454.asia-northeast3.run.app/docs |
+| 서비스         | URL                                                         |
+| -------------- | ----------------------------------------------------------- |
+| **프론트엔드** | https://kfood-export-passport-ai-frontend.vercel.app        |
+| **백엔드 API** | https://kfood-api-233469550454.asia-northeast3.run.app      |
+| **API 문서**   | https://kfood-api-233469550454.asia-northeast3.run.app/docs |
 
 ---
 
@@ -56,7 +56,7 @@ kfood-export-passport-ai/
 ## 주요 기능
 
 - **OCR 엔진 선택**: Google Vision / Tesseract
-- **알레르겐 자동 추출**: 13종 키워드 탐지
+- **알레르기 자동 추출**: 13종 키워드 탐지
 - **영양성분 파싱**: 나트륨, 탄수화물, 당류 등 9종
 - **수출국별 규정 체크**: US / JP / VN 대응
 - **홍보 문구 생성**: 상세설명, 포스터, 바이어 피칭용
@@ -66,11 +66,11 @@ kfood-export-passport-ai/
 
 ## 지원 국가
 
-| 코드 | 국가 | 규정 |
-|------|------|------|
-| US | 미국 | FDA Food Allergen Labeling (FALCPA) |
-| JP | 일본 | 식품표시법 (Food Labeling Act) |
-| VN | 베트남 | 식품안전법 (Decree 43/2017/ND-CP) |
+| 코드 | 국가   | 규정                                |
+| ---- | ------ | ----------------------------------- |
+| US   | 미국   | FDA Food Allergen Labeling (FALCPA) |
+| JP   | 일본   | 식품표시법 (Food Labeling Act)      |
+| VN   | 베트남 | 식품안전법 (Decree 43/2017/ND-CP)   |
 
 ---
 
@@ -113,25 +113,25 @@ VITE_API_BASE_URL=http://localhost:8080
 
 ## API 엔드포인트
 
-| Method | Path | 설명 |
-|--------|------|------|
-| GET | `/` | 헬스체크 |
-| POST | `/api/analyze` | 이미지 분석 + report_id 반환 |
-| GET | `/api/reports` | 히스토리 목록 |
-| GET | `/api/reports/{id}` | 리포트 상세 |
-| GET | `/api/reports/{id}/pdf` | PDF 다운로드 |
+| Method | Path                    | 설명                         |
+| ------ | ----------------------- | ---------------------------- |
+| GET    | `/`                     | 헬스체크                     |
+| POST   | `/api/analyze`          | 이미지 분석 + report_id 반환 |
+| GET    | `/api/reports`          | 히스토리 목록                |
+| GET    | `/api/reports/{id}`     | 리포트 상세                  |
+| GET    | `/api/reports/{id}/pdf` | PDF 다운로드                 |
 
 ---
 
 ## 기술 스택
 
-| 분류 | 기술 |
-|------|------|
-| **백엔드** | Python, FastAPI, SQLite |
-| **프론트엔드** | React 19, TypeScript, Vite |
-| **OCR** | Google Cloud Vision, Tesseract |
-| **LLM** | OpenAI GPT |
-| **배포** | Google Cloud Run, Vercel |
+| 분류           | 기술                           |
+| -------------- | ------------------------------ |
+| **백엔드**     | Python, FastAPI, SQLite        |
+| **프론트엔드** | React 19, TypeScript, Vite     |
+| **OCR**        | Google Cloud Vision, Tesseract |
+| **LLM**        | OpenAI GPT                     |
+| **배포**       | Google Cloud Run, Vercel       |
 
 ---
 

@@ -1,7 +1,8 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { analyzeLabel } from '../services/api';
+import { v4 as uuidv4 } from 'uuid';
+import { analyzeLabel, getUser, linkEmail } from '../services/api';
 import { useToast } from '../contexts/ToastContext';
 import AnalysisProgress from '../components/AnalysisProgress';
 
@@ -15,6 +16,29 @@ const AnalyzePage: React.FC = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // 이메일 관련 상태
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [emailInput, setEmailInput] = useState('');
+
+  useEffect(() => {
+    let currentUserId = localStorage.getItem('user_id');
+    if (!currentUserId) {
+      currentUserId = uuidv4();
+      localStorage.setItem('user_id', currentUserId);
+    }
+
+    const fetchUserEmail = async () => {
+      if (currentUserId) {
+        const { email } = await getUser(currentUserId);
+        if (email) {
+          setUserEmail(email);
+          setEmailInput(email);
+        }
+      }
+    };
+    fetchUserEmail();
+  }, []);
 
   const handleFileSelect = (selectedFile: File) => {
     if (!selectedFile) return;
@@ -89,7 +113,20 @@ const AnalyzePage: React.FC = () => {
     }
 
     setIsAnalyzing(true);
+    let currentUserId = localStorage.getItem('user_id');
+    if (!currentUserId) {
+      currentUserId = uuidv4();
+      localStorage.setItem('user_id', currentUserId);
+    }
+
     try {
+      // 이메일이 입력되었고, 기존 이메일과 다르다면 연결 시도
+      if (emailInput && emailInput !== userEmail) {
+        await linkEmail(currentUserId, emailInput);
+        setUserEmail(emailInput); // UI 업데이트
+        showToast('success', '이메일이 성공적으로 연결되었습니다.');
+      }
+
       const reportId = await analyzeLabel(file, country, ocrEngine);
       showToast('success', '분석이 완료되었습니다!');
       navigate(`/reports/${reportId}`);
@@ -170,6 +207,25 @@ const AnalyzePage: React.FC = () => {
                   type="file"
                   onChange={handleFileChange}
                 />
+              </div>
+
+              {/* 이메일 입력 필드 */}
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-[#121617] dark:text-gray-200 flex items-center gap-2" htmlFor="email">
+                  <span className="material-symbols-outlined text-sm">mail</span>
+                  이메일 (선택 사항)
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="user@example.com"
+                  value={emailInput}
+                  onChange={(e) => setEmailInput(e.target.value)}
+                  className="w-full rounded-lg border-[#dde2e4] dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 py-3 px-4 text-sm"
+                />
+                <p className="text-xs text-[#677c83] dark:text-gray-400">
+                  이메일을 입력하시면 분석 이력이 해당 이메일로 식별됩니다. 비밀번호는 저장되지 않습니다.
+                </p>
               </div>
 
               <div className="space-y-2">

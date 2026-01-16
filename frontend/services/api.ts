@@ -1,4 +1,3 @@
-
 import {
   AnalysisReport,
   Nutrient,
@@ -10,13 +9,14 @@ import {
   ApiReportListItem,
   ApiRiskItem,
   ApiPromoContent,
-} from '../types';
+} from "../types";
 
 // =============================================================================
 // API Base URL (환경변수에서 가져옴)
 // =============================================================================
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 // =============================================================================
 // 변환 함수: 백엔드 응답 → UI 타입
@@ -25,19 +25,21 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080
 /**
  * 영양성분 변환: dict → array
  */
-function convertNutrition(nutrition: Record<string, { value: number; unit: string }>): Nutrient[] {
-  if (!nutrition || typeof nutrition !== 'object') return [];
+function convertNutrition(
+  nutrition: Record<string, { value: number; unit: string }>
+): Nutrient[] {
+  if (!nutrition || typeof nutrition !== "object") return [];
 
   const nutrientNameMap: Record<string, string> = {
-    '나트륨': 'Sodium',
-    '탄수화물': 'Carbohydrate',
-    '당류': 'Total Sugars',
-    '지방': 'Total Fat',
-    '트랜스지방': 'Trans Fat',
-    '포화지방': 'Saturated Fat',
-    '콜레스테롤': 'Cholesterol',
-    '단백질': 'Protein',
-    '칼슘': 'Calcium',
+    나트륨: "Sodium",
+    탄수화물: "Carbohydrate",
+    당류: "Total Sugars",
+    지방: "Total Fat",
+    트랜스지방: "Trans Fat",
+    포화지방: "Saturated Fat",
+    콜레스테롤: "Cholesterol",
+    단백질: "Protein",
+    칼슘: "Calcium",
   };
 
   return Object.entries(nutrition).map(([name, data]) => ({
@@ -55,10 +57,11 @@ function convertRisks(risks: ApiRiskItem[]): RegulationCheck[] {
   if (!risks || !Array.isArray(risks)) return [];
 
   return risks.map((risk) => ({
-    type: risk.severity === 'HIGH' ? 'warning' : 'info',
-    title: risk.allergen === 'PASS' || risk.allergen === 'None'
-      ? '규정 준수 확인'
-      : `알레르겐 주의: ${risk.allergen}`,
+    type: risk.severity === "HIGH" ? "warning" : "info",
+    title:
+      risk.allergen === "PASS" || risk.allergen === "None"
+        ? "규정 준수 확인"
+        : `알레르기 주의: ${risk.allergen}`,
     description: risk.risk,
     regulation: risk.regulation,
     article: risk.article,
@@ -72,16 +75,16 @@ function convertRisks(risks: ApiRiskItem[]): RegulationCheck[] {
 function convertPromo(promo: ApiPromoContent): MarketingSuggestion {
   if (!promo) {
     return {
-      localizedDescription: '',
-      snsCopy: '',
-      buyerPitch: '',
+      localizedDescription: "",
+      snsCopy: "",
+      buyerPitch: "",
     };
   }
 
   return {
-    localizedDescription: promo.detail_copy || '',
-    snsCopy: promo.poster_text || '',
-    buyerPitch: promo.buyer_pitch || '',
+    localizedDescription: promo.detail_copy || "",
+    snsCopy: promo.poster_text || "",
+    buyerPitch: promo.buyer_pitch || "",
   };
 }
 
@@ -92,14 +95,15 @@ function convertReportResponse(api: ApiReportResponse): AnalysisReport {
   return {
     id: api.id,
     createdAt: api.created_at,
-    country: api.country as 'US' | 'JP' | 'VN',
-    ocrEngine: api.ocr_engine as 'google' | 'tesseract',
-    ocrText: api.ocr_text || '',
+    country: api.country as "US" | "JP" | "VN",
+    ocrEngine: api.ocr_engine as "google" | "tesseract",
+    ocrText: api.ocr_text || "",
     ingredients: [], // 백엔드에서 제공하지 않음
     allergens: api.allergens || [],
     nutrients: convertNutrition(api.nutrition),
     regulations: convertRisks(api.risks),
     marketing: convertPromo(api.promo),
+    userEmail: api.user_email,
   };
 }
 
@@ -110,17 +114,17 @@ function convertReportListItem(api: ApiReportListItem): AnalysisReport {
   return {
     id: api.id,
     createdAt: api.created_at,
-    country: api.country as 'US' | 'JP' | 'VN',
-    ocrEngine: api.ocr_engine as 'google' | 'tesseract',
-    ocrText: '',
+    country: api.country as "US" | "JP" | "VN",
+    ocrEngine: api.ocr_engine as "google" | "tesseract",
+    ocrText: "",
     ingredients: [],
     allergens: [],
     nutrients: [],
     regulations: [],
     marketing: {
-      localizedDescription: '',
-      snsCopy: '',
-      buyerPitch: '',
+      localizedDescription: "",
+      snsCopy: "",
+      buyerPitch: "",
     },
   };
 }
@@ -128,6 +132,64 @@ function convertReportListItem(api: ApiReportListItem): AnalysisReport {
 // =============================================================================
 // API 호출 함수
 // =============================================================================
+
+/**
+ * 사용자 ID와 이메일 연결 요청
+ */
+export const linkEmail = async (
+  userId: string,
+  email: string
+): Promise<void> => {
+  const formData = new FormData();
+  formData.append("user_id", userId);
+  formData.append("email", email);
+
+  const response = await fetch(`${API_BASE_URL}/api/users/link-email`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response
+      .json()
+      .catch(() => ({ detail: "이메일 연결 실패" }));
+    throw new Error(error.detail || "이메일 연결 실패");
+  }
+};
+
+/**
+ * 사용자 정보(이메일) 조회
+ */
+export const getUser = async (
+  userId: string
+): Promise<{ email: string | null }> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/users/${userId}`);
+    if (!response.ok) {
+      return { email: null };
+    }
+    const data = await response.json();
+    return { email: data.email };
+  } catch {
+    return { email: null };
+  }
+};
+
+/**
+ * 사용자 ID의 이메일 연결 해제 요청
+ */
+export const unlinkEmail = async (userId: string): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/api/users/${userId}/email`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    const error = await response
+      .json()
+      .catch(() => ({ detail: "이메일 연결 해제 실패" }));
+    throw new Error(error.detail || "이메일 연결 해제 실패");
+  }
+};
 
 /**
  * 라벨 이미지 분석 요청
@@ -139,18 +201,26 @@ export const analyzeLabel = async (
   ocrEngine: string
 ): Promise<string> => {
   const formData = new FormData();
-  formData.append('file', file);
-  formData.append('country', country);
-  formData.append('ocr_engine', ocrEngine);
+  formData.append("file", file);
+  formData.append("country", country);
+  formData.append("ocr_engine", ocrEngine);
+
+  // user_id 추가
+  const userId = localStorage.getItem("user_id");
+  if (userId) {
+    formData.append("user_id", userId);
+  }
 
   const response = await fetch(`${API_BASE_URL}/api/analyze`, {
-    method: 'POST',
+    method: "POST",
     body: formData,
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: '분석 요청 실패' }));
-    throw new Error(error.detail || '분석 요청 실패');
+    const error = await response
+      .json()
+      .catch(() => ({ detail: "분석 요청 실패" }));
+    throw new Error(error.detail || "분석 요청 실패");
   }
 
   const data: ApiAnalyzeResponse = await response.json();
@@ -160,19 +230,29 @@ export const analyzeLabel = async (
 /**
  * 특정 리포트 조회
  */
-export const getReport = async (id: string): Promise<AnalysisReport | undefined> => {
+export const getReport = async (
+  id: string
+): Promise<AnalysisReport | undefined> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/reports/${id}`);
+    const params = new URLSearchParams();
+    const userId = localStorage.getItem("user_id");
+    if (userId) {
+      params.append("user_id", userId);
+    }
+
+    const response = await fetch(
+      `${API_BASE_URL}/api/reports/${id}?${params.toString()}`
+    );
 
     if (!response.ok) {
       if (response.status === 404) return undefined;
-      throw new Error('리포트 조회 실패');
+      throw new Error("리포트 조회 실패");
     }
 
     const data: ApiReportResponse = await response.json();
     return convertReportResponse(data);
   } catch (error) {
-    console.error('getReport error:', error);
+    console.error("getReport error:", error);
     return undefined;
   }
 };
@@ -193,23 +273,31 @@ export const getHistory = async (
 ): Promise<{ reports: AnalysisReport[]; total: number }> => {
   try {
     const params = new URLSearchParams();
-    params.append('limit', limit.toString());
-    params.append('offset', offset.toString());
+    params.append("limit", limit.toString());
+    params.append("offset", offset.toString());
+
+    // user_id 추가
+    const userId = localStorage.getItem("user_id");
+    if (userId) {
+      params.append("user_id", userId);
+    }
 
     if (filters?.country) {
-      params.append('country', filters.country);
+      params.append("country", filters.country);
     }
     if (filters?.dateFrom) {
-      params.append('date_from', filters.dateFrom);
+      params.append("date_from", filters.dateFrom);
     }
     if (filters?.dateTo) {
-      params.append('date_to', filters.dateTo);
+      params.append("date_to", filters.dateTo);
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/reports?${params.toString()}`);
+    const response = await fetch(
+      `${API_BASE_URL}/api/reports?${params.toString()}`
+    );
 
     if (!response.ok) {
-      throw new Error('히스토리 조회 실패');
+      throw new Error("히스토리 조회 실패");
     }
 
     const data: ApiReportListResponse = await response.json();
@@ -218,7 +306,7 @@ export const getHistory = async (
       total: data.total || data.reports.length,
     };
   } catch (error) {
-    console.error('getHistory error:', error);
+    console.error("getHistory error:", error);
     return { reports: [], total: 0 };
   }
 };
@@ -229,16 +317,16 @@ export const getHistory = async (
 export const deleteReport = async (id: string): Promise<boolean> => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/reports/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
 
     if (!response.ok) {
-      throw new Error('리포트 삭제 실패');
+      throw new Error("리포트 삭제 실패");
     }
 
     return true;
   } catch (error) {
-    console.error('deleteReport error:', error);
+    console.error("deleteReport error:", error);
     return false;
   }
 };
@@ -251,9 +339,9 @@ export const downloadPdf = async (id: string): Promise<void> => {
     const url = `${API_BASE_URL}/api/reports/${id}/pdf`;
 
     // 새 탭에서 PDF 다운로드 (브라우저가 처리)
-    window.open(url, '_blank');
+    window.open(url, "_blank");
   } catch (error) {
-    console.error('downloadPdf error:', error);
-    alert('PDF 다운로드 중 오류가 발생했습니다.');
+    console.error("downloadPdf error:", error);
+    alert("PDF 다운로드 중 오류가 발생했습니다.");
   }
 };
