@@ -200,11 +200,11 @@ const ReportPage: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="bg-card border border-card-border rounded-2xl shadow-lg dark:backdrop-blur-lg p-6">
                     <h4 className="text-sm font-bold text-text-muted uppercase mb-3 flex items-center gap-2"><span className="material-symbols-outlined text-base">share</span> SNS 홍보 문구</h4>
-                    <div className="bg-primary/10 p-4 rounded-lg text-sm italic break-keep text-primary">{report.marketing.snsCopy}</div>
+                    <p className="text-sm italic break-keep text-text-primary">{report.marketing.snsCopy}</p>
                   </div>
                   <div className="bg-card border border-card-border rounded-2xl shadow-lg dark:backdrop-blur-lg p-6">
                     <h4 className="text-sm font-bold text-text-muted uppercase mb-3 flex items-center gap-2"><span className="material-symbols-outlined text-base">record_voice_over</span> 바이어 피치 텍스트</h4>
-                    <div className="bg-primary/10 p-4 rounded-lg text-sm break-keep text-primary">{report.marketing.buyerPitch}</div>
+                    <p className="text-sm break-keep text-text-primary">{report.marketing.buyerPitch}</p>
                   </div>
                 </div>
               </div>

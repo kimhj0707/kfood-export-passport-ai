@@ -58,8 +58,11 @@ const HistoryPage: React.FC = () => {
   }, [filterCountry, filterDateFrom, filterDateTo, showToast]);
 
   useEffect(() => {
-    loadHistory(currentPage);
-  }, [currentPage, loadHistory]);
+    // 이메일이 연결된 경우에만 히스토리 로드
+    if (userEmail) {
+      loadHistory(currentPage);
+    }
+  }, [currentPage, loadHistory, userEmail]);
 
   const handleApplyFilters = () => {
     setCurrentPage(0);
@@ -138,34 +141,49 @@ const HistoryPage: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div className="flex flex-col gap-2">
             <h1 className="text-text-primary text-3xl font-black tracking-tight leading-tight">내 분석 이력</h1>
-            <p className="text-text-secondary text-lg">{userEmail ? `연결된 계정: ${userEmail}` : '이 브라우저에 저장된 분석 결과입니다.'}</p>
+            <p className="text-text-secondary text-lg">{userEmail ? `연결된 계정: ${userEmail}` : '이메일을 입력하여 분석 이력을 확인하세요.'}</p>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            {userEmail && (
+          {userEmail && (
+            <div className="flex flex-wrap items-center gap-3">
               <button onClick={handleUnlinkEmail} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-500/30 text-red-500 dark:text-red-400 hover:bg-red-500/10 transition-colors">
                 <span className="material-symbols-outlined text-sm">link_off</span><span className="font-medium text-sm">이메일 연결 해제</span>
               </button>
-            )}
-            <button onClick={() => setShowFilters(!showFilters)} className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${hasActiveFilters ? 'border-primary bg-primary/10 text-primary' : 'border-card-border hover:bg-card-sub-bg text-text-secondary'}`}>
-              <span className="material-symbols-outlined text-sm">filter_list</span><span className="font-medium text-sm">필터</span>
-              {hasActiveFilters && <span className="w-2.5 h-2.5 bg-primary rounded-full"></span>}
-            </button>
-          </div>
+              <button onClick={() => setShowFilters(!showFilters)} className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${hasActiveFilters ? 'border-primary bg-primary/10 text-primary' : 'border-card-border hover:bg-card-sub-bg text-text-secondary'}`}>
+                <span className="material-symbols-outlined text-sm">filter_list</span><span className="font-medium text-sm">필터</span>
+                {hasActiveFilters && <span className="w-2.5 h-2.5 bg-primary rounded-full"></span>}
+              </button>
+            </div>
+          )}
         </div>
 
         {!userEmail && (
-          <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-start gap-3"><span className="material-symbols-outlined text-primary text-2xl mt-0.5">link</span>
-              <div>
-                <h3 className="font-bold text-primary">이메일을 연결하고 분석 이력을 관리하세요!</h3>
-                <p className="text-sm text-primary/80 dark:text-indigo-200 leading-relaxed mt-1">이메일을 연결하면 이 분석 이력을 다른 기기에서도 이어볼 수 있습니다. 이 서비스는 비밀번호를 저장하지 않으며, 이메일은 분석 이력을 식별하기 위한 용도로만 사용됩니다.</p>
-              </div>
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="bg-card border border-card-border rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
+              <span className="material-symbols-outlined text-6xl text-primary mb-4">mail</span>
+              <h2 className="text-2xl font-bold text-text-primary mb-2">이메일로 로그인하세요</h2>
+              <p className="text-text-secondary mb-6 leading-relaxed">
+                이메일을 입력하면 분석 이력을 조회하고 여러 기기에서 동기화할 수 있습니다.
+              </p>
+              <input
+                type="email"
+                placeholder="user@example.com"
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+                className="w-full rounded-lg border border-card-border bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 py-3 px-4 text-sm mb-4 focus:border-primary focus:ring-0"
+              />
+              <button
+                onClick={handleLinkEmail}
+                disabled={isLinking || !emailInput}
+                className="w-full bg-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLinking ? '연결 중...' : '이메일로 계속하기'}
+              </button>
+              <p className="text-xs text-text-muted mt-4">🔒 비밀번호 없이 이메일만으로 이력을 관리합니다.</p>
             </div>
-            <button onClick={() => setShowEmailModal(true)} className="bg-primary text-white font-bold py-2.5 px-6 rounded-lg whitespace-nowrap hover:bg-primary-hover transition-colors">이메일로 계속하기</button>
           </div>
         )}
 
-        {showFilters && (
+        {userEmail && showFilters && (
           <div className="bg-card border border-card-border rounded-2xl p-4 mb-8 shadow-md">
             <h3 className="text-lg font-bold text-text-primary mb-4">필터 설정</h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -197,7 +215,7 @@ const HistoryPage: React.FC = () => {
           </div>
         )}
         
-        {loading ? (
+        {userEmail && (loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
               <div key={i} className="rounded-2xl bg-card border border-card-border p-6 animate-pulse h-48"></div>
@@ -256,7 +274,7 @@ const HistoryPage: React.FC = () => {
             <p className="mt-4 text-lg text-text-secondary">분석 내역이 없습니다.</p>
             <button onClick={() => navigate('/analyze')} className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors font-bold"><span className="material-symbols-outlined text-base">add</span>새 분석 시작</button>
           </div>
-        )}
+        ))}
       </main>
 
       {showEmailModal && (
