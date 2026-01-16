@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { getReport, downloadPdf } from "../services/api";
-import { AnalysisReport } from "../types";
+import { AnalysisReport, RegulationCheck } from "../types";
 import { useToast } from "../contexts/ToastContext";
 import ExpertView from '../components/ExpertView';
 
@@ -15,6 +15,7 @@ const ReportPage: React.FC = () => {
   const [error, setError] = useState(false);
   const [isExpertView, setIsExpertView] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<number | null>(null);
+  const [hoveredRisk, setHoveredRisk] = useState<RegulationCheck | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -48,7 +49,6 @@ const ReportPage: React.FC = () => {
 
   const handleDownloadPdf = (isExpert: boolean = false) => {
     if (!report) return;
-    // `downloadPdf`는 전문가용 PDF 다운로드 기능이 아직 없으므로, 일단 일반 PDF로 연결
     downloadPdf(report.id, { isExpert });
     showToast("info", `${isExpert ? '전문가용' : '일반'} PDF 다운로드가 시작됩니다.`);
   };
@@ -189,7 +189,16 @@ const ReportPage: React.FC = () => {
               </div>
               <div className="p-6">
                 <div className="bg-gray-50 p-4 rounded-lg border border-dashed border-gray-200 font-mono text-sm leading-relaxed text-[#4a5a5e] whitespace-pre-wrap">
-                  {report.ocrText}
+                  {report.ocrText.split('\n').map((line, i) => (
+                    <span
+                      key={i}
+                      data-sentence-index={i}
+                      className={`${hoveredRisk?.evidence.matched.includes(line) ? 'bg-yellow-200' : ''}`}
+                    >
+                      {line}
+                      <br />
+                    </span>
+                  ))}
                 </div>
               </div>
             </section>
@@ -313,7 +322,12 @@ const ReportPage: React.FC = () => {
                       const isOpen = openAccordion === i;
 
                       return (
-                        <li key={i} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                        <li 
+                          key={i} 
+                          className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
+                          onMouseEnter={() => setHoveredRisk(reg)}
+                          onMouseLeave={() => setHoveredRisk(null)}
+                        >
                           <button
                             onClick={() => setOpenAccordion(isOpen ? null : i)}
                             className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"

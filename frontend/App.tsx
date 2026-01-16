@@ -1,10 +1,11 @@
-
 import React, { useEffect } from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import AnalyzePage from './pages/AnalyzePage';
 import ReportPage from './pages/ReportPage';
 import HistoryPage from './pages/HistoryPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import TermsOfServicePage from './pages/TermsOfServicePage';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ToastContainer from './components/Toast';
@@ -36,6 +37,8 @@ const App: React.FC = () => {
               <Route path="/analyze" element={<AnalyzePage />} />
               <Route path="/reports/:id" element={<ReportPage />} />
               <Route path="/history" element={<HistoryPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms-of-service" element={<TermsOfServicePage />} />
             </Routes>
           </main>
           <Footer />
