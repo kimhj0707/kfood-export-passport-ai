@@ -1,7 +1,7 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { useTheme } from '../contexts/ThemeContext';
-import Logo from './Logo.svg?react';
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useTheme } from "../contexts/ThemeContext";
+import Logo from "./Logo.svg?react";
 
 const Header: React.FC = () => {
   const location = useLocation();
@@ -25,13 +25,21 @@ const Header: React.FC = () => {
         <nav className="flex items-center gap-1 sm:gap-4">
           <Link
             to="/analyze"
-            className={`px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-colors ${location.pathname === '/analyze' ? 'text-white bg-primary' : 'text-text-secondary hover:bg-card-sub-bg'}`}
+            className={`px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-colors ${
+              location.pathname === "/analyze"
+                ? "text-white bg-primary"
+                : "text-text-secondary hover:bg-card-sub-bg"
+            }`}
           >
             분석
           </Link>
           <Link
             to="/history"
-            className={`px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-colors ${location.pathname === '/history' ? 'text-white bg-primary' : 'text-text-secondary hover:bg-card-sub-bg'}`}
+            className={`px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-colors ${
+              location.pathname === "/history"
+                ? "text-white bg-primary"
+                : "text-text-secondary hover:bg-card-sub-bg"
+            }`}
           >
             기록
           </Link>
@@ -41,7 +49,7 @@ const Header: React.FC = () => {
             aria-label="테마 변경"
           >
             <span className="material-symbols-outlined text-lg sm:text-xl text-text-secondary">
-              {isDark ? 'light_mode' : 'dark_mode'}
+              {isDark ? "light_mode" : "dark_mode"}
             </span>
           </button>
         </nav>

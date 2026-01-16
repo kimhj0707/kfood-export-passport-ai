@@ -43,18 +43,33 @@ CONTENT_WIDTH = PAGE_WIDTH - (2 * MARGIN)
 
 
 def _register_korean_font():
-    """한글 폰트 등록"""
+    """한글 폰트 등록 - 프로젝트 내 폰트 우선"""
+    import os
+
+    # 프로젝트 내 폰트 경로 (배포 환경용)
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_font = os.path.join(current_dir, "..", "fonts", "malgun.ttf")
+
     font_paths = [
-        "C:/Windows/Fonts/malgun.ttf",
-        "C:/Windows/Fonts/gulim.ttc",
-        "/usr/share/fonts/truetype/nanum/NanumGothic.ttf",
+        project_font,  # 프로젝트 내 폰트 (Cloud Run 등 배포 환경)
+        "/app/src/fonts/malgun.ttf",  # Docker 컨테이너 경로
+        "C:/Windows/Fonts/malgun.ttf",  # Windows 로컬
+        "C:/Windows/Fonts/gulim.ttc",  # Windows 로컬 대체
+        "/usr/share/fonts/truetype/nanum/NanumGothic.ttf",  # Linux
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",  # Linux 대체
     ]
+
     for path in font_paths:
         try:
-            pdfmetrics.registerFont(TTFont("Korean", path))
-            return "Korean"
-        except:
+            if os.path.exists(path):
+                pdfmetrics.registerFont(TTFont("Korean", path))
+                print(f"[PDF] Korean font registered: {path}")
+                return "Korean"
+        except Exception as e:
+            print(f"[PDF] Font registration failed for {path}: {e}")
             continue
+
+    print("[PDF] WARNING: No Korean font found, using Helvetica (한글 깨짐 주의)")
     return "Helvetica"
 
 
