@@ -281,78 +281,90 @@ const ReportPage: React.FC = () => {
 
         <section className="bg-white dark:bg-gray-800 rounded-xl border border-[#dde2e4] dark:border-gray-700 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-[#dde2e4] dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary">
-              gavel
-            </span>
-            <h3 className="font-bold text-[#121617] dark:text-gray-200">
-              {countryLabels[report.country]} 수출 규정 검토 결과
-            </h3>
+            <span className="material-symbols-outlined text-primary">gavel</span>
+            <h3 className="font-bold text-[#121617] dark:text-gray-200">{countryLabels[report.country]} 수출 규정 검토 결과</h3>
           </div>
-          <div className="p-4 md:p-6">
-            <ul className="space-y-3">
-              {report.regulations.length > 0 ? (
-                report.regulations.map((reg, i) => (
-                  <li
-                    key={i}
-                    className="flex gap-4 p-4 rounded-lg bg-white dark:bg-gray-700/50 even:bg-gray-50/50 dark:even:bg-gray-700/80 border border-gray-100 dark:border-gray-700"
-                  >
-                    <span
-                      className={`material-symbols-outlined shrink-0 mt-1 ${
-                        reg.type === "warning"
-                          ? "text-amber-500"
-                          : "text-blue-500"
-                      }`}
-                    >
-                      {reg.type === "warning" ? "warning" : "info"}
-                    </span>
-                    <div className="text-sm w-full">
-                      <p className="font-bold text-[#121617] dark:text-gray-200">
-                        {reg.title}
-                      </p>
-                      <p className="text-[#677c83] dark:text-gray-400 mt-1 break-keep">
-                        {reg.description}
-                      </p>
 
-                      {(reg.regulation || reg.article || reg.reason) && (
-                        <div className="mt-3 pt-3 border-t border-dashed border-gray-200 dark:border-gray-600">
-                          <h5 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase mb-2">
-                            근거 정보
-                          </h5>
-                          <div className="space-y-1 text-xs text-gray-500 dark:text-gray-400">
-                            {reg.regulation && (
-                              <p>
-                                <strong className="font-semibold text-gray-600 dark:text-gray-300">
-                                  관련 규정:
-                                </strong>{" "}
-                                {reg.regulation}
-                              </p>
-                            )}
-                            {reg.article && (
-                              <p>
-                                <strong className="font-semibold text-gray-600 dark:text-gray-300">
-                                  세부 조항:
-                                </strong>{" "}
-                                {reg.article}
-                              </p>
-                            )}
-                            {reg.reason && (
-                              <p>
-                                <strong className="font-semibold text-gray-600 dark:text-gray-300">
-                                  사유:
-                                </strong>{" "}
-                                {reg.reason}
-                              </p>
-                            )}
+          {/* 면책 조항 UI */}
+          <div className="p-4 border-b border-[#dde2e4] dark:border-gray-700 bg-amber-50 dark:bg-amber-900/20">
+            <div className="flex items-start gap-3">
+              <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 mt-0.5">info</span>
+              <div>
+                <p className="text-sm font-bold text-amber-800 dark:text-amber-200">본 결과는 참고 정보이며, 법적 자문이 아닙니다.</p>
+                <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">This report is for preliminary compliance review support and does not constitute legal advice.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 md:p-6">
+            <ul className="space-y-4">
+              {report.regulations.length > 0 ? (
+                report.regulations.map((reg, i) => {
+                  const confidenceLabel =
+                    reg.confidence >= 0.8 ? '높음' : reg.confidence >= 0.6 ? '보통' : '확인 필요';
+                  const confidenceColor =
+                    reg.confidence >= 0.8 ? 'text-green-500' : reg.confidence >= 0.6 ? 'text-yellow-500' : 'text-red-500';
+
+                  return (
+                    <li key={i} className="flex flex-col gap-3 p-4 rounded-lg bg-white dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 shadow-sm">
+                      {/* 1. 요약 */}
+                      <div className="flex items-start gap-3">
+                        <span className={`material-symbols-outlined shrink-0 mt-1 ${reg.type === 'warning' ? 'text-amber-500' : 'text-blue-500'}`}>
+                          {reg.type === 'warning' ? 'warning' : 'info'}
+                        </span>
+                        <div className="w-full">
+                          <div className="flex justify-between items-start">
+                            <p className="font-bold text-base text-[#121617] dark:text-gray-200">{reg.title}</p>
+                            <div className={`flex items-center gap-1.5 text-xs font-bold ${confidenceColor}`}>
+                              <span>{confidenceLabel}</span>
+                              <span className="font-mono">{(reg.confidence * 100).toFixed(0)}%)</span>
+                            </div>
                           </div>
+                          <p className="text-sm text-[#677c83] dark:text-gray-400 mt-1 break-keep">{reg.description}</p>
+                        </div>
+                      </div>
+                      
+                      {/* 2. 근거 및 증거 */}
+                      <div className="pl-8 space-y-3">
+                        {reg.details && (reg.details.regulation || reg.details.article) && (
+                          <div>
+                            <h5 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase mb-1.5">규정 근거</h5>
+                            <div className="text-xs text-gray-600 dark:text-gray-400">
+                              <p>{reg.details.regulation}: {reg.details.article}</p>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {reg.evidence && reg.evidence.matched.length > 0 && (
+                          <div>
+                            <h5 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase mb-1.5">OCR 증거</h5>
+                            <div className="space-y-1 text-xs text-gray-500 dark:text-gray-400 font-mono bg-gray-50 dark:bg-gray-800 p-2 rounded">
+                              {reg.evidence.matched.map((line, j) => (
+                                <p key={j}>- "{line}"</p>
+                              ))}
+                            </div>
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                              Hint: {reg.evidence.hint}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 3. 권장 조치 */}
+                      {reg.next_step && (
+                        <div className="pl-8 pt-3 border-t border-dashed border-gray-200 dark:border-gray-600">
+                           <h5 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase mb-1.5 flex items-center gap-1">
+                             <span className="material-symbols-outlined text-sm">recommend</span>
+                             권장 조치
+                           </h5>
+                           <p className="text-sm text-primary dark:text-primary-light font-semibold">{reg.next_step}</p>
                         </div>
                       )}
-                    </div>
-                  </li>
-                ))
+                    </li>
+                  );
+                })
               ) : (
-                <p className="text-gray-500 dark:text-gray-400 text-sm px-4">
-                  검토 결과 데이터가 없습니다.
-                </p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm px-4">검토 결과 데이터가 없습니다.</p>
               )}
             </ul>
           </div>

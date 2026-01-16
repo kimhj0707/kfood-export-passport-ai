@@ -1,9 +1,11 @@
+
 """
 K-Food Export Passport API
 - 이미지 분석 + DB 저장 + report_id 발급
 - 리포트 조회/목록/PDF 다운로드
 """
 import io
+import re
 from typing import Optional
 
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Query
@@ -19,7 +21,7 @@ from src.rules.nutrition_parser import parse_nutrition
 from src.llm.promo_generator import generate_promo
 from src.report.pdf_report import generate_pdf_report
 
-from src.api.db import save_report, get_report, get_reports, delete_report, count_reports, upsert_user_email, get_user_email, unlink_user_email
+from src.api.db import save_report, get_report, get_reports, delete_report, count_reports, upsert_user_email, get_user_email, unlink_user_email, get_user_by_email
 from src.api.models import (
     AnalyzeResponse,
     ReportResponse,
@@ -64,23 +66,18 @@ async def api_link_email(
 ):
     """
     사용자 ID와 이메일을 연결 (라이트 회원 가입)
-
-    Args:
-        user_id: 클라이언트의 로컬 스토리지에 저장된 고유 사용자 ID
-        email: 사용자 이메일 주소
-
-    Returns:
-        성공 메시지
+    - 이미 이메일이 다른 ID에 연결된 경우, 해당 ID의 리포트들을 현재 ID로 가져옵니다.
     """
-    # 간단한 이메일 형식 검증 (실제로는 더 복잡한 검증 필요)
-    if not "@" in email or not "." in email:
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
         raise HTTPException(status_code=400, detail="유효하지 않은 이메일 형식입니다.")
 
     try:
         upsert_user_email(user_id, email)
-        return {"message": "이메일이 성공적으로 연결되었습니다."}
+        return {"message": "이메일이 성공적으로 연결 및 동기화되었습니다."}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"이메일 연결 중 오류 발생: {str(e)}")
+        # 실제 운영에서는 에러 로깅이 필요합니다.
+        print(f"Error in api_link_email: {e}")
+        raise HTTPException(status_code=500, detail=f"이메일 연결 중 서버 오류 발생: {str(e)}")
 
 
 @app.get("/api/users/{user_id}")

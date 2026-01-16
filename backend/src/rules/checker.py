@@ -123,26 +123,48 @@ def _has_explicit_warning(text: str, allergen_name: str, keywords: List[str]) ->
 
 
 
+def _get_evidence_and_confidence(text_lower: str, keywords: List[str]) -> (List[str], float):
+    """
+    OCR 텍스트에서 근거 문장과 확신도를 계산한다.
+    - 근거 문장: 키워드가 포함된 문장 (또는 줄)
+    - 확신도: 근거 문장 수에 기반한 휴리스틱 점수
+    """
+    if not text_lower or not keywords:
+        return [], 0.0
+
+    lines = _split_lines_for_context(text_lower)
+    matched_lines = []
+    
+    for line in lines:
+        if any(_keyword_found(line, kw) for kw in keywords):
+            matched_lines.append(line.strip())
+            
+    matched_lines = list(set(matched_lines)) # 중복 제거
+
+    # 확신도 휴리스틱
+    confidence = 0.0
+    if len(matched_lines) > 1:
+        confidence = 0.85 + min(0.1, (len(matched_lines) - 2) * 0.05) # 0.85 ~ 0.95
+    elif len(matched_lines) == 1:
+        confidence = 0.7
+    
+    return matched_lines, round(confidence, 2)
+
+
 def check_risks(text: str, country: str = "US") -> List[Dict[str, str]]:
     """
-    텍스트에서 알레르기 누락 가능성을 검사한다.
-
-    동작 규칙(확정):
-    - OCR 텍스트에서 알레르기 키워드가 잡히면 → "해당 알레르기이 존재/언급됨"으로 간주
-    - 그 알레르기이 '명시적 경고 문구(마커+알레르기 동시 표기)'로 함께 표시되지 않았다면 → HIGH 리스크
-    - 알레르기 키워드가 하나도 잡히지 않으면 → None(LOW) (근거 부족)
-
-    Returns:
-        [{"allergen": "...", "risk": "...", "severity": "HIGH/LOW"}]
+    텍스트에서 알레르기 누락 가능성을 검사하고,
+    '설명 가능한 AI'를 위해 근거(evidence)와 확신도(confidence)를 포함한다.
     """
     country = (country or "US").upper()
 
-    # 0) 빈 입력 방어
     if not text or not text.strip():
         return [{
             "allergen": "None",
             "risk": f"[{country}] OCR 텍스트가 비어 있어 분석할 수 없습니다.",
-            "severity": "LOW"
+            "severity": "LOW",
+            "confidence": 0.0,
+            "evidence": {"matched": [], "hint": "No text provided for analysis."}
         }]
 
     rules = _load_rules(country)
@@ -152,7 +174,9 @@ def check_risks(text: str, country: str = "US") -> List[Dict[str, str]]:
         return [{
             "allergen": "Unknown",
             "risk": f"[{country}] 국가의 규칙 파일을 찾을 수 없습니다.",
-            "severity": "LOW"
+            "severity": "LOW",
+            "confidence": 0.0,
+            "evidence": {"matched": [], "hint": f"Rules for country '{country}' not found."}
         }]
 
     text_lower = text.lower()
@@ -163,46 +187,59 @@ def check_risks(text: str, country: str = "US") -> List[Dict[str, str]]:
         allergen_name = allergen.get("name", "").strip()
         keywords = allergen.get("keywords", []) or []
 
-        # 1) 키워드 감지
         found_keywords = [kw for kw in keywords if _keyword_found(text_lower, kw)]
         if not found_keywords:
             continue
 
         detected_any = True
-
-        # 2) 명시적 경고 문구 여부(마커+알레르기 동시 표기)
+        
         has_warning = _has_explicit_warning(text, allergen_name, found_keywords)
-
-        # 3) 경고 문구가 명시적이지 않으면 HIGH 리스크
+        
         if not has_warning:
+            matched_sentences, confidence = _get_evidence_and_confidence(text_lower, found_keywords)
+            
+            # 확신도가 너무 낮으면(0에 가까우면) 리스크로 보고하지 않음 (오탐 방지)
+            if confidence < 0.4:
+                continue
+
             details = allergen.get("details", {})
+            next_step = (
+                f"라벨에 '{allergen_name}'에 대한 명시적인 알레르기 경고(예: 'Contains {allergen_name}')가 있는지 확인하세요."
+            )
+
             risk_item = {
                 "allergen": allergen_name,
                 "risk": (
-                    f"[{country}] Allergen detected: {allergen_name}. "
-                    f"{country_name} requires explicit allergen disclosure "
-                    f"(e.g., 'Contains: {allergen_name}')."
+                    f"[{country_name}] 필수 알레르겐 '{allergen_name}' 포함 가능성이 있으나, "
+                    "명시적인 경고 문구가 확인되지 않았습니다."
                 ),
-                "severity": "HIGH"
+                "severity": "HIGH",
+                "confidence": confidence,
+                "details": details,
+                "evidence": {
+                    "matched": matched_sentences,
+                    "hint": f"'{', '.join(found_keywords)}' 키워드가 발견되었습니다."
+                },
+                "next_step": next_step
             }
-            risk_item.update(details)
             risks.append(risk_item)
 
-
-    # 4) 알레르기 키워드 자체가 안 잡히면 None(LOW)
     if not detected_any:
         return [{
             "allergen": "None",
-            "risk": f"[{country}] 알레르기 키워드가 감지되지 않았습니다.",
-            "severity": "LOW"
+            "risk": f"[{country_name}] 주요 알레르기 관련 키워드가 감지되지 않았습니다.",
+            "severity": "LOW",
+            "confidence": 0.9,
+            "evidence": {"matched": [], "hint": "No major allergen keywords found in the text."}
         }]
 
-    # 5) 알레르기은 감지됐지만(예: wheat/soy) 명시적 경고가 있어서 모두 PASS면 LOW
     if not risks:
         return [{
-        "allergen": "PASS",
-        "risk": f"[{country}] 알레르기 키워드가 감지되었으며, 경고 문구(예: Contains/알레르기 유발물질)가 함께 표기된 것으로 판단됩니다.",
-        "severity": "LOW"
+            "allergen": "PASS",
+            "risk": f"[{country_name}] 주요 알레르기 키워드가 감지되었고, 관련 경고 문구가 함께 발견되어 규정을 준수하는 것으로 보입니다.",
+            "severity": "LOW",
+            "confidence": 0.95,
+            "evidence": {"matched": [], "hint": "Allergen keywords were found with explicit warning statements."}
         }]
 
     return risks

@@ -57,15 +57,15 @@ function convertRisks(risks: ApiRiskItem[]): RegulationCheck[] {
   if (!risks || !Array.isArray(risks)) return [];
 
   return risks.map((risk) => ({
-    type: risk.severity === "HIGH" ? "warning" : "info",
-    title:
-      risk.allergen === "PASS" || risk.allergen === "None"
-        ? "규정 준수 확인"
-        : `알레르기 주의: ${risk.allergen}`,
+    type: risk.severity === 'HIGH' ? 'warning' : 'info',
+    title: risk.allergen === 'PASS' || risk.allergen === 'None'
+      ? risk.risk // 'PASS' 또는 'None'일 때는 risk 메시지를 제목으로 사용
+      : `[${risk.allergen}] 성분 경고`,
     description: risk.risk,
-    regulation: risk.regulation,
-    article: risk.article,
-    reason: risk.reason,
+    confidence: risk.confidence,
+    evidence: risk.evidence,
+    details: risk.details,
+    next_step: risk.next_step,
   }));
 }
 

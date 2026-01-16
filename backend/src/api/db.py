@@ -268,16 +268,49 @@ def delete_report(report_id: str) -> bool:
 
 def upsert_user_email(user_id: str, email: str) -> None:
     """
-    사용자 ID와 이메일을 users 테이블에 upsert (없으면 삽입, 있으면 업데이트)
+    사용자 ID와 이메일을 users 테이블에 upsert.
+    - 동일 이메일이 다른 ID로 존재하면, 기존 ID의 리포트들을 새 ID로 마이그레이션하고
+      기존 ID는 삭제 후 새 ID와 이메일로 연결.
+    - ID만 존재하면 이메일 업데이트.
+    - 둘 다 없으면 신규 생성.
     """
     with get_connection() as conn:
         cursor = conn.cursor()
+
+        # 1. 이메일로 기존 사용자 조회
+        cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+        existing_user_by_email = cursor.fetchone()
+
+        if existing_user_by_email:
+            old_user_id = existing_user_by_email['id']
+            # 이메일이 현재 ID가 아닌 다른 ID와 연결된 경우
+            if old_user_id != user_id:
+                # 기존 ID의 리포트들을 새 ID로 마이그레이션
+                cursor.execute("UPDATE reports SET user_id = ? WHERE user_id = ?", (user_id, old_user_id))
+                # 기존 사용자 레코드 삭제
+                cursor.execute("DELETE FROM users WHERE id = ?", (old_user_id,))
+        
+        # 2. 현재 user_id로 사용자 정보 UPSERT
+        # (기존 레코드가 삭제되었거나, 원래 없었거나, ID가 같았음)
         cursor.execute(
-            "INSERT INTO users (id, email) VALUES (?, ?) ON CONFLICT(id) DO UPDATE SET email = excluded.email, created_at = CURRENT_TIMESTAMP",
+            """
+            INSERT INTO users (id, email) VALUES (?, ?)
+            ON CONFLICT(id) DO UPDATE SET
+                email = excluded.email,
+                created_at = CURRENT_TIMESTAMP
+            """,
             (user_id, email)
         )
         conn.commit()
 
+def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
+    """이메일로 사용자 정보 조회"""
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+        row = cursor.fetchone()
+        return dict(row) if row else None
+        
 def unlink_user_email(user_id: str) -> bool:
     """
     사용자 ID의 이메일 연결을 해제 (이메일 필드를 NULL로 설정)

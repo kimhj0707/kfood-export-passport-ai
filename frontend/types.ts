@@ -28,59 +28,40 @@ export interface RegulationCheck {
   type: 'warning' | 'info';
   title: string;
   description: string;
-  regulation?: string;
-  article?: string;
-  reason?: string;
+  confidence: number;
+  evidence: {
+    matched: string[];
+    hint: string;
+  };
+  details?: {
+    regulation?: string;
+    article?: string;
+    reason?: string;
+  };
+  next_step?: string;
 }
 
 export interface MarketingSuggestion {
-  localizedDescription: string;
-  snsCopy: string;
-  buyerPitch: string;
-}
-
-// =============================================================================
-// 백엔드 API 응답 타입
-// =============================================================================
-
-export interface ApiAnalyzeResponse {
-  report_id: string;
-  country: string;
-  ocr_engine: string;
-  ocr_text: string;
-  allergens: string[];
-  nutrition: Record<string, { value: number; unit: string }>;
-  risks: ApiRiskItem[];
-  promo: ApiPromoContent;
-}
-
-export interface ApiReportResponse {
-  id: string;
-  created_at: string;
-  country: string;
-  ocr_engine: string;
-  ocr_text: string;
-  allergens: string[];
-  nutrition: Record<string, { value: number; unit: string }>;
-  risks: ApiRiskItem[];
-  promo: ApiPromoContent;
-  user_email?: string;
-}
-
+...
 export interface ApiRiskItem {
   allergen: string;
   risk: string;
   severity: 'HIGH' | 'LOW';
-  regulation?: string;
-  article?: string;
-  reason?: string;
+  confidence: number;
+  evidence: {
+    matched: string[];
+    hint: string;
+  };
+  details?: {
+    regulation?: string;
+    article?: string;
+    reason?: string;
+  };
+  next_step?: string;
 }
 
 export interface ApiPromoContent {
-  detail_copy: string;
-  poster_text: string;
-  buyer_pitch: string;
-}
+...
 
 export interface ApiReportListResponse {
   reports: ApiReportListItem[];
