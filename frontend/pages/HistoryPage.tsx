@@ -145,7 +145,7 @@ const HistoryPage: React.FC = () => {
           </div>
           {userEmail && (
             <div className="flex flex-wrap items-center gap-3">
-              <button onClick={handleUnlinkEmail} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-500/30 text-red-500 dark:text-red-400 hover:bg-red-500/10 transition-colors">
+              <button onClick={handleUnlinkEmail} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-500/30 text-red-500 hover:bg-red-500/10 transition-colors">
                 <span className="material-symbols-outlined text-sm">link_off</span><span className="font-medium text-sm">이메일 연결 해제</span>
               </button>
               <button onClick={() => setShowFilters(!showFilters)} className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${hasActiveFilters ? 'border-primary bg-primary/10 text-primary' : 'border-card-border hover:bg-card-sub-bg text-text-secondary'}`}>
@@ -169,7 +169,7 @@ const HistoryPage: React.FC = () => {
                 placeholder="user@example.com"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
-                className="w-full rounded-lg border border-card-border bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 py-3 px-4 text-sm mb-4 focus:border-primary focus:ring-0"
+                className="w-full rounded-lg border border-card-border bg-card text-text-primary placeholder:text-text-muted py-3 px-4 text-sm mb-4 focus:border-primary focus:ring-0"
               />
               <button
                 onClick={handleLinkEmail}
@@ -237,7 +237,7 @@ const HistoryPage: React.FC = () => {
                       <span className="text-2xl">{countryFlags[item.country]}</span>
                       <h3 className="font-bold text-text-primary group-hover:text-primary leading-tight">{countryLabels[item.country]}</h3>
                     </div>
-                    <button onClick={(e) => handleDelete(item.id, e)} disabled={deleting === item.id} className="p-2 rounded-full text-text-muted hover:bg-red-500/10 hover:text-red-500 dark:hover:bg-red-500/20 dark:hover:text-red-400 transition-colors disabled:opacity-50">
+                    <button onClick={(e) => handleDelete(item.id, e)} disabled={deleting === item.id} className="p-2 rounded-full text-text-muted hover:bg-red-500/10 hover:text-red-500 transition-colors disabled:opacity-50">
                       {deleting === item.id ? (
                         <svg className="animate-spin h-4 w-4 text-text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -278,7 +278,7 @@ const HistoryPage: React.FC = () => {
       </main>
 
       {showEmailModal && (
-        <div className="fixed inset-0 bg-black/50 dark:bg-slate-900/80 backdrop-blur-lg flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-lg flex items-center justify-center z-50">
           <div className="bg-card border border-card-border rounded-2xl shadow-2xl w-full max-w-md m-4">
             <div className="p-6">
               <h2 className="text-xl font-bold text-text-primary mb-2">이메일로 계속하기</h2>

@@ -3,7 +3,11 @@ module.exports = {
   darkMode: 'class', // 다크모드 클래스 기반으로 활성화
   content: [
     "./index.html",
-    "./{src,pages,components}/**/*.{js,ts,jsx,tsx,svg}",
+    "./*.{ts,tsx}",
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx,svg}",
+    "./contexts/**/*.{ts,tsx}",
+    "./services/**/*.{ts,tsx}",
   ],
   theme: {
     extend: {

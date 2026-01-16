@@ -44,10 +44,10 @@ const AnalysisProgress: React.FC<AnalysisProgressProps> = ({ isOpen }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
-        <div className="bg-slate-100 dark:bg-slate-800 px-6 py-5">
-          <h3 className="text-slate-900 dark:text-white text-lg font-bold">라벨 분석 진행 중</h3>
-          <p className="text-slate-600 dark:text-slate-300 text-sm mt-1">잠시만 기다려주세요...</p>
+      <div className="bg-card border border-card-border rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+        <div className="bg-card-sub-bg px-6 py-5">
+          <h3 className="text-text-primary text-lg font-bold">라벨 분석 진행 중</h3>
+          <p className="text-text-secondary text-sm mt-1">잠시만 기다려주세요...</p>
         </div>
 
         <div className="p-6">
@@ -64,7 +64,7 @@ const AnalysisProgress: React.FC<AnalysisProgressProps> = ({ isOpen }) => {
                   aria-current={isCurrent ? "step" : undefined}
                 >
                   <div className={`relative flex items-center justify-center w-10 h-10 rounded-full shrink-0 transition-all duration-300
-                    ${isCompleted ? "bg-green-500 text-white" : isCurrent ? "bg-primary text-white ring-2 ring-primary/50 ring-offset-2 ring-offset-white dark:ring-offset-slate-900" : "bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500"}`}>
+                    ${isCompleted ? "bg-green-500 text-white" : isCurrent ? "bg-primary text-white ring-2 ring-primary/50 ring-offset-2 ring-offset-card" : "bg-card-sub-bg text-text-muted"}`}>
                     {isCompleted ? (
                       <span className="material-symbols-outlined text-xl">check</span>
                     ) : (
@@ -72,23 +72,23 @@ const AnalysisProgress: React.FC<AnalysisProgressProps> = ({ isOpen }) => {
                     )}
                   </div>
                   <div className="flex-1 pt-1">
-                    <p className={`font-medium text-sm ${isCurrent ? 'text-slate-900 dark:text-white font-bold' : isCompleted ? 'text-slate-600 dark:text-slate-300' : 'text-slate-400 dark:text-slate-500'}`}>
+                    <p className={`font-medium text-sm ${isCurrent ? 'text-text-primary font-bold' : isCompleted ? 'text-text-secondary' : 'text-text-muted'}`}>
                       {step.label}
                       {isCompleted && <span className="ml-2 text-xs font-normal bg-green-500 text-white px-1.5 py-0.5 rounded-sm">완료</span>}
                     </p>
-                    {isCurrent && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{step.description}</p>}
+                    {isCurrent && <p className="text-xs text-text-muted mt-0.5">{step.description}</p>}
                   </div>
                 </div>
               );
             })}
           </div>
 
-          <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
-            <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
+          <div className="mt-6 pt-4 border-t border-card-border">
+            <div className="flex items-center justify-between text-xs text-text-secondary">
               <span>진행률</span>
               <span>{Math.round(((currentStep + 1) / steps.length) * 100)}%</span>
             </div>
-            <div className="mt-2 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden relative">
+            <div className="mt-2 h-2 bg-card-sub-bg rounded-full overflow-hidden relative">
               <div className="h-full bg-gradient-to-r from-primary via-primary to-primary rounded-full transition-all duration-500"
                 style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
               />
