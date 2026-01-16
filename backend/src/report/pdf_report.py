@@ -363,8 +363,12 @@ def generate_pdf_report(
     ocr_engine: str,
     allergens: List[str],
     nutrition: Dict[str, Any],
-    risks: List[Dict[str, str]],
+    risks: List[Dict[str, Any]], # Changed from str to Any
     promo: Dict[str, str],
+    summary: Dict[str, str] = None, # New: Structured summary
+    input_data_status: Dict[str, Any] = None, # New: Input data reliability
+    correction_guide: List[Dict[str, str]] = None, # New: Before/After examples
+    regulatory_basis: List[str] = None, # New: Keyword list
     is_expert: bool = False,
     expert_comment: str = ""
 ) -> bytes:
@@ -394,8 +398,23 @@ def generate_pdf_report(
     # ===== 헤더 =====
     elements.append(Paragraph("K-Food Export Passport", styles["main_title"]))
     elements.append(Paragraph("식품 라벨 분석 리포트", styles["subtitle"]))
+    elements.append(Spacer(1, 5 * mm))
 
-    # ===== 기본 정보 카드 =====
+    # ===== 0. 요약 =====
+    elements.append(Paragraph("0. 요약", styles["section_title"]))
+    if summary and summary.get("overall_summary"):
+        summary_text = summary.get("overall_summary", "")
+        if summary.get("priority_item"):
+            summary_text += f"<br/>즉시 조치 필요한 항목: {summary['priority_item']}"
+        if summary.get("expected_effect"):
+            summary_text += f"<br/>기대 효과: {summary['expected_effect']}"
+        elements.append(Paragraph(summary_text, styles["body"]))
+    else:
+        elements.append(Paragraph("요약 정보 없음.", styles["body_small"]))
+    elements.append(Spacer(1, 8 * mm))
+
+    # ===== 1. 입력 데이터 상태 =====
+    elements.append(Paragraph("1. 입력 데이터 상태", styles["section_title"]))
     country_names = {
         "US": "미국 (United States)",
         "JP": "일본 (Japan)",
@@ -409,6 +428,18 @@ def generate_pdf_report(
         ("생성일시", datetime.now().strftime("%Y년 %m월 %d일 %H:%M")),
         ("OCR 엔진", ocr_engine.upper()),
     ]
+    if input_data_status:
+        if "ocr_confidence" in input_data_status:
+            info_items.append(("OCR 신뢰도", input_data_status["ocr_confidence"]))
+        if "detected_language" in input_data_status:
+            info_items.append(("감지 언어", input_data_status["detected_language"]))
+        if "ingredients_detected" in input_data_status:
+            info_items.append(("성분표 인식 여부", "예" if input_data_status["ingredients_detected"] else "아니오"))
+        if "allergens_detected" in input_data_status:
+            info_items.append(("알레르겐 검출 여부", "예" if input_data_status["allergens_detected"] else "아니오"))
+        if "nutrition_detected" in input_data_status:
+            info_items.append(("영양정보 인식 여부", "예" if input_data_status["nutrition_detected"] else "아니오"))
+
     elements.append(_create_info_card(info_items, font_name, styles))
     elements.append(Spacer(1, 8 * mm))
 
@@ -497,6 +528,14 @@ def generate_pdf_report(
             if confidence > 0:
                 text += f" <font size='8' color='#94A3B8'>(확신도 {confidence * 100:.0f}%)</font>"
 
+            # Add rule details if available
+            rule_id = r.get("rule_id")
+            rule_description = r.get("rule_description")
+            if rule_id:
+                text += f"<br/><font size='8' color='#64748B'>규정 ID: {rule_id}</font>"
+            if rule_description:
+                text += f"<br/><font size='8' color='#64748B'>{rule_description}</font>"
+
             elements.append(Paragraph(text, style))
             elements.append(Spacer(1, 2 * mm))
     else:
@@ -504,7 +543,30 @@ def generate_pdf_report(
 
     elements.append(Spacer(1, 6 * mm))
 
-    # ===== AI 마케팅 제안 =====
+    # ===== 3. 수정 가이드 (Before → After) =====
+    elements.append(Paragraph("3. 수정 가이드 (Before → After)", styles["section_title"]))
+    if correction_guide:
+        for i, item in enumerate(correction_guide):
+            elements.append(Paragraph(f"<b>{i+1}.</b>", styles["body_small"]))
+            elements.append(Paragraph("<b>[Before]</b>", styles["body_small"]))
+            elements.append(Paragraph(item.get("before", "(해당 문구 없음)"), styles["body"]))
+            elements.append(Paragraph("<b>[After]</b>", styles["body_small"]))
+            elements.append(Paragraph(item.get("after", "(해당 문구 없음)"), styles["body"]))
+            elements.append(Spacer(1, 4 * mm))
+    else:
+        elements.append(Paragraph("수정 가이드 정보 없음.", styles["body_small"]))
+    elements.append(Spacer(1, 6 * mm))
+
+    # ===== 4. 규정 근거 정보 =====
+    elements.append(Paragraph("4. 규정 근거 정보", styles["section_title"]))
+    if regulatory_basis:
+        for item in regulatory_basis:
+            elements.append(Paragraph(f"  • {item}", styles["body_small"]))
+    else:
+        elements.append(Paragraph("규정 근거 정보 없음.", styles["body_small"]))
+    elements.append(Spacer(1, 6 * mm))
+
+    # ===== AI 마케팅 제안 (기존) =====
     elements.append(Paragraph("AI 마케팅 제안", styles["section_title"]))
 
     promo_sections = [
@@ -529,17 +591,23 @@ def generate_pdf_report(
             ]))
             elements.append(content_table)
             elements.append(Spacer(1, 4 * mm))
+    if not any(promo_sections):
+        elements.append(Paragraph("AI 마케팅 제안 정보 없음.", styles["body_small"]))
 
-    # ===== 푸터 =====
     elements.append(Spacer(1, 10 * mm))
-    elements.append(HRFlowable(width="100%", thickness=0.5, color=CARD_BORDER, spaceAfter=3 * mm))
 
+    # ===== 5. 면책 문구 (고정) =====
+    elements.append(HRFlowable(width="100%", thickness=0.5, color=CARD_BORDER, spaceAfter=3 * mm))
+    elements.append(Paragraph(
+        "본 결과는 공개 규정 기반의 자동 1차 점검이며, 최종 수출 적합성 판단은 전문 기관 검토가 필요합니다.",
+        styles["footer"]
+    ))
+    elements.append(Spacer(1, 2 * mm))
+    elements.append(HRFlowable(width="100%", thickness=0.5, color=CARD_BORDER, spaceBefore=3 * mm, spaceAfter=5 * mm))
+
+    # ===== 푸터 (조정됨) =====
     footer_text = f"K-Food Export Passport AI  |  Report ID: {report_id}  |  {datetime.now().strftime('%Y-%m-%d %H:%M')}"
     elements.append(Paragraph(footer_text, styles["footer"]))
-
-    disclaimer = "본 리포트는 AI 분석 결과이며, 참고용으로만 사용하시기 바랍니다. 실제 수출 시에는 반드시 해당 국가의 공식 규정을 확인하세요."
-    elements.append(Spacer(1, 2 * mm))
-    elements.append(Paragraph(disclaimer, styles["footer"]))
 
     doc.build(elements)
     buffer.seek(0)

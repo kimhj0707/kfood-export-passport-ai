@@ -48,7 +48,14 @@ if st.button("분석 시작", disabled=(uploaded_file is None)):
         st.stop()
 
     with st.spinner("규칙 검사 중..."):
-        risks = check_risks(ocr_text, country=export_country)
+        report_pack = check_risks(
+            text=ocr_text,
+            country=export_country,
+            ocr_confidence=ocr_engine, # OCR 엔진 이름을 신뢰도 지표로 사용
+            detected_language="한국어/영어 혼합", # 실제 언어 감지 결과가 있다면 교체 필요
+            nutrition_detected=bool(nutrition) # 영양성분 인식 여부를 전달
+        )
+        risks = report_pack.get("risks", [])
 
     with st.spinner("홍보 문구 생성 중..."):
         promo = generate_promo(ocr_text, export_country)
@@ -104,10 +111,14 @@ if st.button("분석 시작", disabled=(uploaded_file is None)):
     pdf_bytes = generate_pdf_report(
         country=export_country,
         ocr_engine=ocr_engine,
-        allergens=allergens,
-        nutrition=nutrition,
-        risks=risks,
-        promo=promo
+        allergens=allergens, # 기존 파라미터 유지
+        nutrition=nutrition, # 기존 파라미터 유지
+        promo=promo, # 기존 파라미터 유지
+        risks=report_pack.get("risks", []),
+        summary=report_pack.get("summary"),
+        input_data_status=report_pack.get("input_data_status"),
+        correction_guide=report_pack.get("correction_guide"),
+        regulatory_basis=report_pack.get("regulatory_basis"),
     )
     st.download_button(
         label="PDF 리포트 다운로드",

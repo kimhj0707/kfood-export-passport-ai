@@ -7,6 +7,7 @@ K-Food Export Passport API
 import io
 import re
 from typing import Optional
+import uuid
 
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,6 +31,8 @@ from src.api.models import (
     ReportListResponse,
     ErrorResponse
 )
+
+
 
 app = FastAPI(
     title="K-Food Export Passport API",
@@ -143,7 +146,15 @@ async def api_analyze(
         # 분석
         allergens = extract_allergens(ocr_text)
         nutrition = parse_nutrition(ocr_text)
-        risks = check_risks(ocr_text, country=country)
+        
+        report_pack = check_risks(
+            text=ocr_text,
+            country=country,
+            ocr_confidence=ocr_engine, # OCR 엔진 이름을 신뢰도 지표로 사용
+            detected_language="한국어/영어 혼합", # 실제 언어 감지 결과가 있다면 교체 필요
+            nutrition_detected=bool(nutrition) # 영양성분 인식 여부를 전달
+        )
+        risks = report_pack.get("risks", [])
         promo = generate_promo(ocr_text, country)
 
         # DB 저장
@@ -154,8 +165,12 @@ async def api_analyze(
             ocr_text=ocr_text,
             allergens=allergens,
             nutrition=nutrition,
-            risks=risks,
-            promo=promo
+            promo=promo,
+            risks=report_pack.get("risks", []),
+            summary=report_pack.get("summary"),
+            input_data_status=report_pack.get("input_data_status"),
+            correction_guide=report_pack.get("correction_guide"),
+            regulatory_basis=report_pack.get("regulatory_basis"),
         )
 
         return JSONResponse(content={
@@ -165,8 +180,12 @@ async def api_analyze(
             "ocr_text": ocr_text,
             "allergens": allergens,
             "nutrition": nutrition,
-            "risks": risks,
             "promo": promo,
+            "risks": report_pack.get("risks", []),
+            "summary": report_pack.get("summary"),
+            "input_data_status": report_pack.get("input_data_status"),
+            "correction_guide": report_pack.get("correction_guide"),
+            "regulatory_basis": report_pack.get("regulatory_basis"),
             "user_id": user_id
         })
 
@@ -272,8 +291,12 @@ async def api_download_pdf(
             ocr_engine=report["ocr_engine"],
             allergens=report["allergens"],
             nutrition=report["nutrition"],
-            risks=report["risks"],
             promo=report["promo"],
+            risks=report.get("risks", []),
+            summary=report.get("summary"),
+            input_data_status=report.get("input_data_status"),
+            correction_guide=report.get("correction_guide"),
+            regulatory_basis=report.get("regulatory_basis"),
             is_expert=is_expert,
             expert_comment=expert_comment
         )
@@ -349,7 +372,14 @@ async def legacy_analyze(
 
         allergens = extract_allergens(ocr_text)
         nutrition = parse_nutrition(ocr_text)
-        risks = check_risks(ocr_text, country=country)
+        report_pack = check_risks(
+            text=ocr_text,
+            country=country,
+            ocr_confidence=ocr_engine, # OCR 엔진 이름을 신뢰도 지표로 사용
+            detected_language="한국어/영어 혼합", # 실제 언어 감지 결과가 있다면 교체 필요
+            nutrition_detected=bool(nutrition) # 영양성분 인식 여부를 전달
+        )
+        risks = report_pack.get("risks", [])
         promo = generate_promo(ocr_text, country)
 
         return JSONResponse(content={
@@ -398,16 +428,30 @@ async def legacy_report(
 
         allergens = extract_allergens(ocr_text)
         nutrition = parse_nutrition(ocr_text)
-        risks = check_risks(ocr_text, country=country)
+        report_pack = check_risks(
+            text=ocr_text,
+            country=country,
+            ocr_confidence=ocr_engine, # OCR 엔진 이름을 신뢰도 지표로 사용
+            detected_language="한국어/영어 혼합", # 실제 언어 감지 결과가 있다면 교체 필요
+            nutrition_detected=bool(nutrition) # 영양성분 인식 여부를 전달
+        )
+        risks = report_pack.get("risks", [])
         promo = generate_promo(ocr_text, country)
 
+        report_id = uuid.uuid4().hex[:8] # 8자리 UUID 생성
+
         pdf_bytes = generate_pdf_report(
+            report_id=report_id, # report_id 추가
             country=country,
             ocr_engine=ocr_engine,
             allergens=allergens,
             nutrition=nutrition,
-            risks=risks,
-            promo=promo
+            promo=promo,
+            risks=report_pack.get("risks", []),
+            summary=report_pack.get("summary"),
+            input_data_status=report_pack.get("input_data_status"),
+            correction_guide=report_pack.get("correction_guide"),
+            regulatory_basis=report_pack.get("regulatory_basis"),
         )
 
         return Response(

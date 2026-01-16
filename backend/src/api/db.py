@@ -35,6 +35,19 @@ def init_db():
                 promo TEXT
             );
         """)
+        # 새로운 컬럼 추가 (존재하지 않을 경우)
+        cursor.execute("PRAGMA table_info(reports);")
+        columns = [col[1] for col in cursor.fetchall()]
+        
+        if "summary" not in columns:
+            cursor.execute("ALTER TABLE reports ADD COLUMN summary TEXT DEFAULT NULL;")
+        if "input_data_status" not in columns:
+            cursor.execute("ALTER TABLE reports ADD COLUMN input_data_status TEXT DEFAULT NULL;")
+        if "correction_guide" not in columns:
+            cursor.execute("ALTER TABLE reports ADD COLUMN correction_guide TEXT DEFAULT NULL;")
+        if "regulatory_basis" not in columns:
+            cursor.execute("ALTER TABLE reports ADD COLUMN regulatory_basis TEXT DEFAULT NULL;")
+        
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id TEXT PRIMARY KEY,
@@ -68,8 +81,12 @@ def save_report(
     ocr_text: str,
     allergens: List[str],
     nutrition: Dict[str, Any],
-    risks: List[Dict[str, str]],
-    promo: Dict[str, str]
+    risks: List[Dict[str, Any]],
+    promo: Dict[str, str],
+    summary: Optional[Dict[str, str]] = None,
+    input_data_status: Optional[Dict[str, Any]] = None,
+    correction_guide: Optional[List[Dict[str, str]]] = None,
+    regulatory_basis: Optional[List[str]] = None
 ) -> str:
     """
     분석 결과를 DB에 저장하고 report_id 반환
@@ -82,8 +99,8 @@ def save_report(
     with get_connection() as conn:
         cursor = conn.cursor()
         cursor.execute("""
-            INSERT INTO reports (id, user_id, country, ocr_engine, ocr_text, allergens, nutrition, risks, promo)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO reports (id, user_id, country, ocr_engine, ocr_text, allergens, nutrition, risks, promo, summary, input_data_status, correction_guide, regulatory_basis)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             report_id,
             user_id,
@@ -93,7 +110,11 @@ def save_report(
             json.dumps(allergens, ensure_ascii=False),
             json.dumps(nutrition, ensure_ascii=False),
             json.dumps(risks, ensure_ascii=False),
-            json.dumps(promo, ensure_ascii=False)
+            json.dumps(promo, ensure_ascii=False),
+            json.dumps(summary, ensure_ascii=False) if summary else None,
+            json.dumps(input_data_status, ensure_ascii=False) if input_data_status else None,
+            json.dumps(correction_guide, ensure_ascii=False) if correction_guide else None,
+            json.dumps(regulatory_basis, ensure_ascii=False) if regulatory_basis else None
         ))
         conn.commit()
 
@@ -344,7 +365,11 @@ def _row_to_dict(row: sqlite3.Row) -> Dict[str, Any]:
         "allergens": json.loads(row["allergens"]) if row["allergens"] else [],
         "nutrition": json.loads(row["nutrition"]) if row["nutrition"] else {},
         "risks": json.loads(row["risks"]) if row["risks"] else [],
-        "promo": json.loads(row["promo"]) if row["promo"] else {}
+        "promo": json.loads(row["promo"]) if row["promo"] else {},
+        "summary": json.loads(row["summary"]) if row["summary"] else {},
+        "input_data_status": json.loads(row["input_data_status"]) if row["input_data_status"] else {},
+        "correction_guide": json.loads(row["correction_guide"]) if row["correction_guide"] else [],
+        "regulatory_basis": json.loads(row["regulatory_basis"]) if row["regulatory_basis"] else []
     }
 
 
