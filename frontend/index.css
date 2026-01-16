@@ -45,10 +45,10 @@
   --color-primary: 99 102 241; /* indigo-500 */
   --color-primary-hover: 129 140 248; /* indigo-400 */
 
-  --color-card-background: 255 255 255;
-  --color-card-border: 255 255 255;
-  --color-card-sub-bg: 255 255 255;
-  
+  --color-card-background: 15 23 42; /* slate-900 */
+  --color-card-border: 51 65 85; /* slate-700 */
+  --color-card-sub-bg: 30 41 59; /* slate-800 */
+
   --shadow-color: 0 0 0;
 }
 
