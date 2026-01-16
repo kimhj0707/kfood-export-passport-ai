@@ -46,7 +46,7 @@ const LandingPage: React.FC = () => {
           </div>
 
           {/* 콘텐츠 - 왼쪽 정렬 */}
-          <div className="relative z-10 flex flex-col items-start justify-center px-12 py-28 sm:px-24 sm:py-36 lg:px-28 lg:py-48 text-left">
+          <div className="relative z-10 flex flex-col items-start justify-center px-4 py-28 sm:px-6 sm:py-36 md:px-12 lg:px-28 lg:py-48 text-left">
             <h1 className="text-4xl font-black tracking-tight text-slate-800 dark:text-white sm:text-5xl md:text-6xl lg:text-7xl leading-tight">
               <span className="block">수출길, AI로 여는</span>
               <span className="block mt-2 sm:mt-3 lg:mt-4">식품 라벨의 미래</span>

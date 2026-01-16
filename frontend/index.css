@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html,
+  body {
+    @apply antialiased;
+    overflow-x: hidden; /* 추가: 가로 스크롤을 원천적으로 방지 */
+  }
+}
+
 :root {
   --color-background: 248 250 252; /* slate-50 */
   --color-text-primary: 30 41 59; /* slate-800 */
