@@ -1,0 +1,55 @@
+name: Deploy Backend to Cloud Run
+
+on:
+  push:
+    branches: ["main", "master"]
+    paths:
+      - "backend/**"
+      - ".github/workflows/deploy-backend-cloudrun.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: cloudrun-backend
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write # Workload Identity Federation용 (권장)
+
+    env:
+      PROJECT_ID: k-food-export-passport-ai
+      REGION: asia-northeast3
+      SERVICE: kfood-api
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ✅ (권장) 키 파일 없이 GitHub OIDC로 인증: Workload Identity Federation
+      - name: Auth to Google Cloud (WIF)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Deploy to Cloud Run (from source)
+        run: |
+          gcloud run deploy "${SERVICE}" \
+            --source "backend" \
+            --region "${REGION}" \
+            --platform managed \
+            --min-instances 0 \
+            --max-instances 1 \
+            --cpu 1 \
+            --memory 1Gi \
+            --timeout 300 \
+            --allow-unauthenticated
