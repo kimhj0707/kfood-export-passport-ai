@@ -4,6 +4,7 @@ import { getReport, downloadPdf } from "../services/api";
 import { AnalysisReport, RegulationCheck } from "../types";
 import { useToast } from "../contexts/ToastContext";
 import ExpertView from '../components/ExpertView';
+import NutritionTable from '../components/NutritionTable';
 
 const ReportPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -268,6 +269,20 @@ const ReportPage: React.FC = () => {
                 </div>
               )}
             </section>
+
+            {/* 국가별 영양성분표 */}
+            {report.nutrients && report.nutrients.length > 0 && (
+              <NutritionTable
+                country={report.country}
+                nutrition={report.nutrients.reduce((acc, n) => {
+                  acc[n.name] = {
+                    value: n.amount,
+                    unit: n.percent ? '' : '',
+                  };
+                  return acc;
+                }, {} as Record<string, { value: string | number; unit: string }>)}
+              />
+            )}
 
             {/* 마케팅 제안 */}
             {report.marketing.localizedDescription && (

@@ -462,6 +462,161 @@ def _create_eu_nutrition_table(nutrition: Dict[str, Any], font_name: str) -> Tab
     return table
 
 
+def _create_china_nutrition_table(nutrition: Dict[str, Any], font_name: str) -> Table:
+    """중국 营养成分表 스타일 영양성분표 생성 (GB 28050-2011)"""
+
+    nutrient_mapping = {
+        "열량": "能量",
+        "칼로리": "能量",
+        "단백질": "蛋白质",
+        "지방": "脂肪",
+        "탄수화물": "碳水化合物",
+        "나트륨": "钠",
+        "당류": "糖",
+        "식이섬유": "膳食纤维",
+        "포화지방": "饱和脂肪",
+        "콜레스테롤": "胆固醇",
+        "칼슘": "钙",
+        "철분": "铁",
+    }
+
+    # 중국 NRV (Nutrient Reference Values)
+    nrv_values = {
+        "能量": 8400,  # kJ
+        "蛋白质": 60,
+        "脂肪": 60,
+        "碳水化合物": 300,
+        "钠": 2000,
+        "膳食纤维": 25,
+        "钙": 800,
+        "铁": 15,
+    }
+
+    table_width = 85 * mm
+
+    title_style = ParagraphStyle("CNTitle", fontName=font_name, fontSize=11, textColor=colors.black, alignment=TA_CENTER, leading=13)
+    header_style = ParagraphStyle("CNHeader", fontName=font_name, fontSize=7, textColor=colors.white, alignment=TA_CENTER)
+    item_style = ParagraphStyle("CNItem", fontName=font_name, fontSize=7, textColor=colors.black, leading=9)
+    value_style = ParagraphStyle("CNValue", fontName=font_name, fontSize=7, textColor=colors.black, alignment=TA_CENTER, leading=9)
+
+    data = []
+    # 헤더
+    data.append([
+        Paragraph("<b>营养成分表</b>", title_style),
+        Paragraph("", title_style),
+        Paragraph("", title_style)
+    ])
+    data.append([
+        Paragraph("<b>项目</b>", header_style),
+        Paragraph("<b>每100g</b>", header_style),
+        Paragraph("<b>NRV%</b>", header_style)
+    ])
+
+    for kor_name, value_dict in nutrition.items():
+        cn_name = nutrient_mapping.get(kor_name, None)
+        if cn_name is None:
+            continue
+        val = value_dict.get('value', '')
+        unit = value_dict.get('unit', '')
+
+        # NRV% 계산
+        try:
+            val_num = float(str(val).replace(',', '').replace('kcal', '').replace('g', '').replace('mg', '').strip())
+            nrv = nrv_values.get(cn_name, 0)
+            if nrv > 0:
+                nrv_percent = f"{int((val_num / nrv) * 100)}%"
+            else:
+                nrv_percent = "-"
+        except:
+            nrv_percent = "-"
+
+        data.append([
+            Paragraph(f"{cn_name}", item_style),
+            Paragraph(f"{val}{unit}", value_style),
+            Paragraph(f"{nrv_percent}", value_style)
+        ])
+
+    table = Table(data, colWidths=[table_width * 0.45, table_width * 0.30, table_width * 0.25])
+    table.setStyle(TableStyle([
+        ("BOX", (0, 0), (-1, -1), 1.5, colors.black),
+        ("BACKGROUND", (0, 0), (-1, 0), colors.white),
+        ("BACKGROUND", (0, 1), (-1, 1), colors.HexColor("#DC2626")),
+        ("BACKGROUND", (0, 2), (-1, -1), colors.white),
+        ("LINEBELOW", (0, 1), (-1, -2), 0.5, colors.HexColor("#E5E7EB")),
+        ("LINEBEFORE", (1, 1), (1, -1), 0.5, colors.HexColor("#E5E7EB")),
+        ("LINEBEFORE", (2, 1), (2, -1), 0.5, colors.HexColor("#E5E7EB")),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("TOPPADDING", (0, 0), (-1, -1), 3),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+        ("LEFTPADDING", (0, 0), (-1, -1), 4),
+    ]))
+
+    return table
+
+
+def _create_vietnam_nutrition_table(nutrition: Dict[str, Any], font_name: str) -> Table:
+    """베트남 Thông tin dinh dưỡng 스타일 영양성분표 생성"""
+
+    nutrient_mapping = {
+        "열량": "Năng lượng",
+        "칼로리": "Năng lượng",
+        "단백질": "Chất đạm",
+        "지방": "Chất béo",
+        "탄수화물": "Carbohydrate",
+        "나트륨": "Natri",
+        "당류": "Đường",
+        "식이섬유": "Chất xơ",
+        "포화지방": "Chất béo bão hòa",
+        "콜레스테롤": "Cholesterol",
+    }
+
+    table_width = 80 * mm
+
+    title_style = ParagraphStyle("VNTitle", fontName=font_name, fontSize=10, textColor=colors.white, alignment=TA_CENTER, leading=12)
+    header_style = ParagraphStyle("VNHeader", fontName=font_name, fontSize=7, textColor=colors.black, alignment=TA_CENTER)
+    item_style = ParagraphStyle("VNItem", fontName=font_name, fontSize=7, textColor=colors.black, leading=9)
+    value_style = ParagraphStyle("VNValue", fontName=font_name, fontSize=7, textColor=colors.black, alignment=TA_CENTER, leading=9)
+
+    data = []
+    # 헤더 - 베트남 국기 색상 (빨강)
+    data.append([
+        Paragraph("<b>THÔNG TIN DINH DƯỠNG</b>", title_style),
+        Paragraph("", title_style)
+    ])
+    data.append([
+        Paragraph("<b>Thành phần</b>", header_style),
+        Paragraph("<b>Hàm lượng</b>", header_style)
+    ])
+
+    for kor_name, value_dict in nutrition.items():
+        vn_name = nutrient_mapping.get(kor_name, None)
+        if vn_name is None:
+            continue
+        val = value_dict.get('value', '')
+        unit = value_dict.get('unit', '')
+
+        data.append([
+            Paragraph(f"{vn_name}", item_style),
+            Paragraph(f"{val}{unit}", value_style)
+        ])
+
+    table = Table(data, colWidths=[table_width * 0.6, table_width * 0.4])
+    table.setStyle(TableStyle([
+        ("BOX", (0, 0), (-1, -1), 1.5, colors.HexColor("#DC2626")),
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#DC2626")),
+        ("BACKGROUND", (0, 1), (-1, 1), colors.HexColor("#FEE2E2")),
+        ("BACKGROUND", (0, 2), (-1, -1), colors.white),
+        ("LINEBELOW", (0, 1), (-1, -2), 0.5, colors.HexColor("#FECACA")),
+        ("LINEBEFORE", (1, 1), (1, -1), 0.5, colors.HexColor("#FECACA")),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("TOPPADDING", (0, 0), (-1, -1), 3),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+        ("LEFTPADDING", (0, 0), (-1, -1), 4),
+    ]))
+
+    return table
+
+
 def _create_summary_cards(high: int, medium: int, low: int, allergen_count: int, styles: dict):
     """요약 대시보드 카드"""
     data = [[
@@ -791,8 +946,14 @@ def generate_pdf_report(
         elements.append(Spacer(1, 2 * mm))
 
         # ===== 수출국 규격 영양성분표 =====
-        if country in ["US", "JP", "EU"]:
-            country_label = {"US": "미국 FDA", "JP": "일본", "EU": "유럽연합"}
+        if country in ["US", "JP", "EU", "CN", "VN"]:
+            country_label = {
+                "US": "미국 FDA",
+                "JP": "일본",
+                "EU": "유럽연합",
+                "CN": "중국 GB",
+                "VN": "베트남"
+            }
             elements.append(Paragraph(f"5-1. {country_label[country]} 규격 영양성분표", styles["section_title"]))
             elements.append(Paragraph("아래 표는 수출국 규격에 맞게 변환된 영양성분표입니다. 실제 라벨 제작 시 참고하세요.", styles["body_small"]))
             elements.append(Spacer(1, 2 * mm))
@@ -803,6 +964,10 @@ def generate_pdf_report(
                 nutrition_table = _create_japan_nutrition_table(nutrition, font_name)
             elif country == "EU":
                 nutrition_table = _create_eu_nutrition_table(nutrition, font_name)
+            elif country == "CN":
+                nutrition_table = _create_china_nutrition_table(nutrition, font_name)
+            elif country == "VN":
+                nutrition_table = _create_vietnam_nutrition_table(nutrition, font_name)
 
             # 표를 가운데 정렬하기 위해 외부 테이블로 감싸기
             wrapper_data = [[nutrition_table]]
