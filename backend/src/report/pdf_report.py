@@ -189,6 +189,279 @@ def _create_styles(font_name: str):
     }
 
 
+def _create_fda_nutrition_table(nutrition: Dict[str, Any], font_name: str) -> Table:
+    """미국 FDA Nutrition Facts 스타일 영양성분표 생성"""
+
+    # FDA 표준 영양성분 매핑 (한글 → 영문)
+    nutrient_mapping = {
+        "열량": ("Calories", ""),
+        "칼로리": ("Calories", ""),
+        "탄수화물": ("Total Carbohydrate", "g"),
+        "당류": ("Total Sugars", "g"),
+        "식이섬유": ("Dietary Fiber", "g"),
+        "단백질": ("Protein", "g"),
+        "지방": ("Total Fat", "g"),
+        "포화지방": ("Saturated Fat", "g"),
+        "트랜스지방": ("Trans Fat", "g"),
+        "콜레스테롤": ("Cholesterol", "mg"),
+        "나트륨": ("Sodium", "mg"),
+        "칼슘": ("Calcium", "mg"),
+        "철분": ("Iron", "mg"),
+        "비타민D": ("Vitamin D", "mcg"),
+        "칼륨": ("Potassium", "mg"),
+    }
+
+    # 일일 권장량 (FDA 기준)
+    daily_values = {
+        "Total Fat": 78,
+        "Saturated Fat": 20,
+        "Cholesterol": 300,
+        "Sodium": 2300,
+        "Total Carbohydrate": 275,
+        "Dietary Fiber": 28,
+        "Protein": 50,
+        "Vitamin D": 20,
+        "Calcium": 1300,
+        "Iron": 18,
+        "Potassium": 4700,
+    }
+
+    # 스타일 정의
+    title_style = ParagraphStyle("FDATitle", fontName=font_name, fontSize=16, textColor=colors.black, leading=18)
+    subtitle_style = ParagraphStyle("FDASubtitle", fontName=font_name, fontSize=7, textColor=colors.black, leading=9)
+    calorie_style = ParagraphStyle("FDACalorie", fontName=font_name, fontSize=12, textColor=colors.black, leading=14)
+    item_style = ParagraphStyle("FDAItem", fontName=font_name, fontSize=7, textColor=colors.black, leading=9)
+    item_bold_style = ParagraphStyle("FDAItemBold", fontName=font_name, fontSize=7, textColor=colors.black, leading=9)
+    percent_style = ParagraphStyle("FDAPercent", fontName=font_name, fontSize=7, textColor=colors.black, alignment=TA_RIGHT, leading=9)
+
+    # 표 너비 - 더 넓게
+    table_width = 85 * mm
+
+    # 영양성분 데이터 변환
+    fda_data = {}
+    calories = 0
+
+    for kor_name, value_dict in nutrition.items():
+        if kor_name in nutrient_mapping:
+            eng_name, unit = nutrient_mapping[kor_name]
+            val = value_dict.get('value', 0)
+            try:
+                val = float(str(val).replace(',', '').replace('kcal', '').replace('g', '').replace('mg', '').strip())
+            except:
+                val = 0
+            fda_data[eng_name] = val
+            if eng_name == "Calories":
+                calories = val
+
+    # 테이블 데이터 구성
+    data = []
+
+    # 헤더
+    data.append([Paragraph("<b>Nutrition Facts</b>", title_style)])
+    data.append([Paragraph("Serving Size 1 package", subtitle_style)])
+
+    # 칼로리
+    cal_val = fda_data.get("Calories", calories)
+    data.append([Paragraph(f"<b>Calories</b> {int(cal_val)}", calorie_style)])
+
+    # % Daily Value 헤더
+    data.append([Paragraph("<b>% Daily Value*</b>", ParagraphStyle("Right", fontName=font_name, fontSize=7, alignment=TA_RIGHT))])
+
+    # 영양성분 항목들
+    nutrient_order = [
+        ("Total Fat", True, 0),
+        ("Saturated Fat", False, 1),
+        ("Trans Fat", False, 1),
+        ("Cholesterol", True, 0),
+        ("Sodium", True, 0),
+        ("Total Carbohydrate", True, 0),
+        ("Dietary Fiber", False, 1),
+        ("Total Sugars", False, 1),
+        ("Protein", True, 0),
+        ("Vitamin D", True, 0),
+        ("Calcium", True, 0),
+        ("Iron", True, 0),
+        ("Potassium", True, 0),
+    ]
+
+    for nutrient, is_bold, indent in nutrient_order:
+        val = fda_data.get(nutrient, 0)
+        unit = "g" if nutrient in ["Total Fat", "Saturated Fat", "Trans Fat", "Total Carbohydrate", "Dietary Fiber", "Total Sugars", "Protein"] else "mg"
+        if nutrient == "Cholesterol":
+            unit = "mg"
+
+        # % Daily Value 계산
+        dv = daily_values.get(nutrient, 0)
+        if dv > 0 and val > 0:
+            percent = int((val / dv) * 100)
+            percent_text = f"{percent}%"
+        else:
+            percent_text = ""
+
+        # 들여쓰기
+        prefix = "&nbsp;&nbsp;&nbsp;" if indent else ""
+
+        if is_bold:
+            text = f"{prefix}<b>{nutrient}</b> {int(val)}{unit}"
+        else:
+            text = f"{prefix}{nutrient} {int(val)}{unit}"
+
+        # 2열 레이아웃 (항목 | %)
+        row_data = [[
+            Paragraph(text, item_style),
+            Paragraph(f"<b>{percent_text}</b>", percent_style)
+        ]]
+        inner_table = Table(row_data, colWidths=[table_width * 0.82, table_width * 0.18])
+        inner_table.setStyle(TableStyle([
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("TOPPADDING", (0, 0), (-1, -1), 1),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 1),
+            ("LEFTPADDING", (0, 0), (-1, -1), 2),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 2),
+        ]))
+        data.append([inner_table])
+
+    # 푸터
+    data.append([Paragraph("<i>* The % Daily Value tells you how much a nutrient in a serving contributes to a daily diet.</i>",
+                           ParagraphStyle("Footer", fontName=font_name, fontSize=6, textColor=TEXT_MUTED, leading=8))])
+
+    # 메인 테이블 생성
+    table = Table(data, colWidths=[table_width])
+
+    # 스타일 적용 - FDA 특유의 굵은 검정 테두리
+    style_commands = [
+        # 외곽 굵은 테두리
+        ("BOX", (0, 0), (-1, -1), 2, colors.black),
+        # 배경색
+        ("BACKGROUND", (0, 0), (-1, -1), colors.white),
+        # 패딩
+        ("TOPPADDING", (0, 0), (-1, -1), 2),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
+        ("LEFTPADDING", (0, 0), (-1, -1), 4),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 4),
+        # 제목 아래 굵은 선
+        ("LINEBELOW", (0, 0), (-1, 0), 1.5, colors.black),
+        # 서빙사이즈 아래 굵은 선
+        ("LINEBELOW", (0, 1), (-1, 1), 4, colors.black),
+        # 칼로리 아래 굵은 선
+        ("LINEBELOW", (0, 2), (-1, 2), 3, colors.black),
+        # 각 항목 사이 얇은 선
+        ("LINEBELOW", (0, 3), (-1, -2), 0.5, colors.black),
+    ]
+
+    table.setStyle(TableStyle(style_commands))
+
+    return table
+
+
+def _create_japan_nutrition_table(nutrition: Dict[str, Any], font_name: str) -> Table:
+    """일본 栄養成分表示 스타일 영양성분표 생성"""
+
+    # 일본 표준 영양성분 매핑
+    nutrient_mapping = {
+        "열량": "熱量",
+        "칼로리": "熱量",
+        "단백질": "たんぱく質",
+        "지방": "脂質",
+        "탄수화물": "炭水化物",
+        "나트륨": "食塩相当量",
+        "당류": "糖類",
+        "식이섬유": "食物繊維",
+    }
+
+    table_width = 65 * mm
+
+    # 스타일
+    title_style = ParagraphStyle("JPTitle", fontName=font_name, fontSize=10, textColor=colors.black, alignment=TA_CENTER, leading=12)
+    item_style = ParagraphStyle("JPItem", fontName=font_name, fontSize=8, textColor=colors.black, leading=10)
+
+    data = []
+    data.append([Paragraph("<b>栄養成分表示</b>", title_style)])
+    data.append([Paragraph("1食分当たり", ParagraphStyle("Sub", fontName=font_name, fontSize=7, alignment=TA_CENTER))])
+
+    for kor_name, value_dict in nutrition.items():
+        jp_name = nutrient_mapping.get(kor_name, kor_name)
+        val = value_dict.get('value', '')
+        unit = value_dict.get('unit', '')
+        data.append([Paragraph(f"{jp_name}　{val}{unit}", item_style)])
+
+    table = Table(data, colWidths=[table_width])
+    table.setStyle(TableStyle([
+        ("BOX", (0, 0), (-1, -1), 1, colors.black),
+        ("BACKGROUND", (0, 0), (-1, -1), colors.white),
+        ("LINEBELOW", (0, 0), (-1, 0), 1, colors.black),
+        ("LINEBELOW", (0, 1), (-1, 1), 0.5, colors.black),
+        ("TOPPADDING", (0, 0), (-1, -1), 3),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+        ("LEFTPADDING", (0, 0), (-1, -1), 4),
+    ]))
+
+    return table
+
+
+def _create_eu_nutrition_table(nutrition: Dict[str, Any], font_name: str) -> Table:
+    """EU Nutrition Declaration 스타일 영양성분표 생성"""
+
+    nutrient_mapping = {
+        "열량": "Energy",
+        "칼로리": "Energy",
+        "지방": "Fat",
+        "포화지방": "of which saturates",
+        "탄수화물": "Carbohydrate",
+        "당류": "of which sugars",
+        "단백질": "Protein",
+        "나트륨": "Salt",
+        "식이섬유": "Fibre",
+    }
+
+    table_width = 80 * mm
+
+    title_style = ParagraphStyle("EUTitle", fontName=font_name, fontSize=10, textColor=colors.black, leading=12)
+    header_style = ParagraphStyle("EUHeader", fontName=font_name, fontSize=7, textColor=colors.white, alignment=TA_CENTER)
+    item_style = ParagraphStyle("EUItem", fontName=font_name, fontSize=8, textColor=colors.black, leading=10)
+    value_style = ParagraphStyle("EUValue", fontName=font_name, fontSize=8, textColor=colors.black, alignment=TA_CENTER)
+
+    data = []
+    # 헤더
+    data.append([
+        Paragraph("<b>Nutrition Declaration</b>", title_style),
+        Paragraph("", title_style)
+    ])
+    data.append([
+        Paragraph("<b>per 100g</b>", header_style),
+        Paragraph("<b>per serving</b>", header_style)
+    ])
+
+    for kor_name, value_dict in nutrition.items():
+        eu_name = nutrient_mapping.get(kor_name, kor_name)
+        val = value_dict.get('value', '')
+        unit = value_dict.get('unit', '')
+
+        # 들여쓰기 처리
+        if eu_name.startswith("of which"):
+            eu_name = f"&nbsp;&nbsp;{eu_name}"
+
+        data.append([
+            Paragraph(f"{eu_name}", item_style),
+            Paragraph(f"{val}{unit}", value_style)
+        ])
+
+    table = Table(data, colWidths=[table_width * 0.6, table_width * 0.4])
+    table.setStyle(TableStyle([
+        ("BOX", (0, 0), (-1, -1), 1, colors.HexColor("#1E40AF")),
+        ("BACKGROUND", (0, 0), (-1, 0), colors.white),
+        ("BACKGROUND", (0, 1), (-1, 1), colors.HexColor("#1E40AF")),
+        ("BACKGROUND", (0, 2), (-1, -1), colors.white),
+        ("LINEBELOW", (0, 0), (-1, -2), 0.5, colors.HexColor("#BFDBFE")),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("TOPPADDING", (0, 0), (-1, -1), 3),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+        ("LEFTPADDING", (0, 0), (-1, -1), 4),
+    ]))
+
+    return table
+
+
 def _create_summary_cards(high: int, medium: int, low: int, allergen_count: int, styles: dict):
     """요약 대시보드 카드"""
     data = [[
@@ -516,6 +789,30 @@ def generate_pdf_report(
         ]))
         elements.append(table)
         elements.append(Spacer(1, 2 * mm))
+
+        # ===== 수출국 규격 영양성분표 =====
+        if country in ["US", "JP", "EU"]:
+            country_label = {"US": "미국 FDA", "JP": "일본", "EU": "유럽연합"}
+            elements.append(Paragraph(f"5-1. {country_label[country]} 규격 영양성분표", styles["section_title"]))
+            elements.append(Paragraph("아래 표는 수출국 규격에 맞게 변환된 영양성분표입니다. 실제 라벨 제작 시 참고하세요.", styles["body_small"]))
+            elements.append(Spacer(1, 2 * mm))
+
+            if country == "US":
+                nutrition_table = _create_fda_nutrition_table(nutrition, font_name)
+            elif country == "JP":
+                nutrition_table = _create_japan_nutrition_table(nutrition, font_name)
+            elif country == "EU":
+                nutrition_table = _create_eu_nutrition_table(nutrition, font_name)
+
+            # 표를 가운데 정렬하기 위해 외부 테이블로 감싸기
+            wrapper_data = [[nutrition_table]]
+            wrapper_table = Table(wrapper_data, colWidths=[CONTENT_WIDTH])
+            wrapper_table.setStyle(TableStyle([
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            ]))
+            elements.append(wrapper_table)
+            elements.append(Spacer(1, 3 * mm))
 
     # ===== AI 마케팅 제안 =====
     if promo and any([promo.get("detail_copy"), promo.get("poster_text"), promo.get("buyer_pitch")]):
