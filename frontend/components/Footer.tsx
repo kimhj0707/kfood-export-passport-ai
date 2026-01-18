@@ -26,7 +26,7 @@ const Footer: React.FC = () => {
           </a>
         </div>
         <div className="text-xs text-text-muted">
-          © 2024 K-Food Export Passport. All rights reserved.
+          © 2025 K-Food Export Passport. All rights reserved.
         </div>
       </div>
     </footer>
