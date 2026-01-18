@@ -72,6 +72,82 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Stats Section */}
+      <section className="w-full py-16 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="text-center p-6 rounded-2xl bg-card border border-card-border">
+              <div className="text-4xl md:text-5xl font-black text-primary mb-2">5+</div>
+              <div className="text-text-secondary font-medium">지원 국가</div>
+            </div>
+            <div className="text-center p-6 rounded-2xl bg-card border border-card-border">
+              <div className="text-4xl md:text-5xl font-black text-primary mb-2">AI</div>
+              <div className="text-text-secondary font-medium">기반 분석</div>
+            </div>
+            <div className="text-center p-6 rounded-2xl bg-card border border-card-border">
+              <div className="text-4xl md:text-5xl font-black text-primary mb-2">OCR</div>
+              <div className="text-text-secondary font-medium">자동 인식</div>
+            </div>
+            <div className="text-center p-6 rounded-2xl bg-card border border-card-border">
+              <div className="text-4xl md:text-5xl font-black text-primary mb-2">PDF</div>
+              <div className="text-text-secondary font-medium">리포트 제공</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Key Features Section */}
+      <section className="w-full py-20 px-4 bg-card-sub-bg">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h3 className="text-4xl font-bold text-text-primary">
+              핵심 기능
+            </h3>
+            <p className="text-text-secondary mt-4 text-lg">
+              수출에 필요한 모든 분석을 한 번에 제공합니다.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="p-6 rounded-2xl bg-card border border-card-border hover:border-primary transition-colors">
+              <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                <span className="material-symbols-outlined text-3xl text-primary">document_scanner</span>
+              </div>
+              <h4 className="text-xl font-bold text-text-primary mb-2">OCR 텍스트 인식</h4>
+              <p className="text-text-secondary text-sm leading-relaxed">
+                Google Vision AI로 라벨의 텍스트를 정확하게 추출합니다.
+              </p>
+            </div>
+            <div className="p-6 rounded-2xl bg-card border border-card-border hover:border-primary transition-colors">
+              <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                <span className="material-symbols-outlined text-3xl text-primary">warning</span>
+              </div>
+              <h4 className="text-xl font-bold text-text-primary mb-2">알레르겐 검출</h4>
+              <p className="text-text-secondary text-sm leading-relaxed">
+                각 국가별 주요 알레르겐을 자동으로 식별하고 위험도를 분석합니다.
+              </p>
+            </div>
+            <div className="p-6 rounded-2xl bg-card border border-card-border hover:border-primary transition-colors">
+              <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                <span className="material-symbols-outlined text-3xl text-primary">gavel</span>
+              </div>
+              <h4 className="text-xl font-bold text-text-primary mb-2">규정 준수 검토</h4>
+              <p className="text-text-secondary text-sm leading-relaxed">
+                미국, 일본, EU 등 주요 수출국의 식품 규정을 자동 검토합니다.
+              </p>
+            </div>
+            <div className="p-6 rounded-2xl bg-card border border-card-border hover:border-primary transition-colors">
+              <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                <span className="material-symbols-outlined text-3xl text-primary">auto_awesome</span>
+              </div>
+              <h4 className="text-xl font-bold text-text-primary mb-2">마케팅 문구 생성</h4>
+              <p className="text-text-secondary text-sm leading-relaxed">
+                AI가 타겟 시장에 맞는 홍보 문구를 자동으로 생성합니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 3-Step Process Section */}
       <section className="w-full py-20 px-4 overflow-hidden">
         <div className="max-w-7xl mx-auto overflow-visible">

@@ -15,25 +15,25 @@ from reportlab.platypus import (
 )
 
 
-# 모던 컬러 팔레트
+# 모던 컬러 팔레트 - 가독성 강화
 PRIMARY = colors.HexColor("#0D9488")
 PRIMARY_DARK = colors.HexColor("#0F766E")
-PRIMARY_LIGHT = colors.HexColor("#99F6E4")
-PRIMARY_BG = colors.HexColor("#F0FDFA")
+PRIMARY_LIGHT = colors.HexColor("#5EEAD4")
+PRIMARY_BG = colors.HexColor("#CCFBF1")
 
 TEXT_DARK = colors.HexColor("#0F172A")
-TEXT_MAIN = colors.HexColor("#334155")
-TEXT_MUTED = colors.HexColor("#94A3B8")
+TEXT_MAIN = colors.HexColor("#1E293B")
+TEXT_MUTED = colors.HexColor("#64748B")
 
-CARD_BG = colors.HexColor("#F8FAFC")
-CARD_BORDER = colors.HexColor("#E2E8F0")
+CARD_BG = colors.HexColor("#F1F5F9")
+CARD_BORDER = colors.HexColor("#CBD5E1")
 
-SUCCESS = colors.HexColor("#10B981")
-SUCCESS_BG = colors.HexColor("#ECFDF5")
-WARNING = colors.HexColor("#F59E0B")
-WARNING_BG = colors.HexColor("#FFFBEB")
-DANGER = colors.HexColor("#EF4444")
-DANGER_BG = colors.HexColor("#FEF2F2")
+SUCCESS = colors.HexColor("#059669")
+SUCCESS_BG = colors.HexColor("#A7F3D0")
+WARNING = colors.HexColor("#D97706")
+WARNING_BG = colors.HexColor("#FDE68A")
+DANGER = colors.HexColor("#DC2626")
+DANGER_BG = colors.HexColor("#FECACA")
 
 # 페이지 설정
 PAGE_WIDTH = A4[0]
