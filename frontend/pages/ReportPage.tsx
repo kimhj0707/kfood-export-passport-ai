@@ -5,6 +5,12 @@ import { AnalysisReport, RegulationCheck } from "../types";
 import { useToast } from "../contexts/ToastContext";
 import ExpertView from '../components/ExpertView';
 import NutritionTable from '../components/NutritionTable';
+import RiskGauge from '../components/RiskGauge';
+import Confetti from '../components/Confetti';
+import QRCodeModal from '../components/QRCodeModal';
+import { ReportSkeleton } from '../components/Skeleton';
+import Tooltip from '../components/Tooltip';
+import SocialShare from '../components/SocialShare';
 
 const ReportPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +23,8 @@ const ReportPage: React.FC = () => {
   const [isExpertView, setIsExpertView] = useState(false);
   const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set([0]));
   const [showOcrText, setShowOcrText] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -43,10 +51,37 @@ const ReportPage: React.FC = () => {
     loadReport();
   }, [loadReport]);
 
+  // 새로운 리포트 로드 시 축하 애니메이션
+  useEffect(() => {
+    if (report && !loading) {
+      const shownKey = `confetti_shown_${report.id}`;
+      if (!sessionStorage.getItem(shownKey)) {
+        setShowConfetti(true);
+        sessionStorage.setItem(shownKey, 'true');
+        setTimeout(() => setShowConfetti(false), 3500);
+      }
+    }
+  }, [report, loading]);
+
   const handleDownloadPdf = (isExpert: boolean = false) => {
     if (!report) return;
     downloadPdf(report.id, { isExpert });
     showToast("info", `${isExpert ? '전문가용' : '일반'} PDF 다운로드가 시작됩니다.`);
+  };
+
+  const handleExportJson = () => {
+    if (!report) return;
+    const dataStr = JSON.stringify(report, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `report_${report.id}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("success", "JSON 파일이 다운로드되었습니다.");
   };
 
   const handleShare = (isExpert: boolean = false) => {
@@ -69,9 +104,8 @@ const ReportPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-3 bg-background text-text-primary">
-        <span className="material-symbols-outlined text-4xl text-primary animate-spin">progress_activity</span>
-        <p className="text-text-secondary">리포트를 불러오는 중...</p>
+      <div className="bg-background text-text-primary min-h-screen">
+        <ReportSkeleton />
       </div>
     );
   }
@@ -89,7 +123,7 @@ const ReportPage: React.FC = () => {
     );
   }
 
-  const countryLabels: Record<string, string> = { US: "미국 (USA)", JP: "일본 (Japan)", VN: "베트남 (Vietnam)", EU: "유럽연합 (EU)", CN: "중국 (China)" };
+  const countryLabels: Record<string, string> = { US: "🇺🇸 미국", JP: "🇯🇵 일본", VN: "🇻🇳 베트남", EU: "🇪🇺 유럽연합", CN: "🇨🇳 중국" };
 
   // 위험도 카운트
   const highCount = report.regulations.filter(r => r.severity === 'HIGH').length;
@@ -106,6 +140,13 @@ const ReportPage: React.FC = () => {
 
   return (
     <div className="bg-background text-text-primary min-h-screen">
+      <Confetti isActive={showConfetti} />
+      <QRCodeModal
+        isOpen={showQRModal}
+        onClose={() => setShowQRModal(false)}
+        url={window.location.href}
+        title="리포트 QR 공유"
+      />
       <main className="flex flex-col flex-1 max-w-5xl mx-auto w-full px-4 py-6 gap-6">
         {/* 헤더 */}
         <section className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -119,22 +160,41 @@ const ReportPage: React.FC = () => {
             <p className="text-sm text-text-secondary mt-1">{report.createdAt.split(" ")[0]} 생성</p>
           </div>
           <div className="flex gap-2 no-print">
-            <button onClick={() => setIsExpertView(!isExpertView)} className="flex items-center gap-1.5 rounded-lg h-9 px-4 bg-card border border-card-border text-text-primary text-sm hover:bg-card-sub-bg transition-colors">
-              <span className="material-symbols-outlined text-base">{isExpertView ? 'visibility' : 'military_tech'}</span>
-              <span className="hidden sm:inline">{isExpertView ? '일반' : '전문가'}</span>
-            </button>
-            <button onClick={() => handleShare(isExpertView)} className="flex items-center gap-1.5 rounded-lg h-9 px-4 bg-card border border-card-border text-text-primary text-sm hover:bg-card-sub-bg transition-colors">
-              <span className="material-symbols-outlined text-base">share</span>
-            </button>
-            <button onClick={() => handleDownloadPdf(isExpertView)} className="flex items-center gap-1.5 rounded-lg h-9 px-4 bg-primary text-white text-sm hover:bg-primary-hover transition-colors">
-              <span className="material-symbols-outlined text-base">download</span>
-              <span className="hidden sm:inline">PDF</span>
-            </button>
+            <Tooltip content={isExpertView ? '일반 보기로 전환' : '전문가 보기로 전환'}>
+              <button onClick={() => setIsExpertView(!isExpertView)} className="flex items-center gap-1.5 rounded-lg h-9 px-4 bg-card border border-card-border text-text-primary text-sm hover:bg-card-sub-bg transition-colors">
+                <span className="material-symbols-outlined text-base">{isExpertView ? 'visibility' : 'military_tech'}</span>
+                <span className="hidden sm:inline">{isExpertView ? '일반' : '전문가'}</span>
+              </button>
+            </Tooltip>
+            <Tooltip content="QR 코드로 공유">
+              <button onClick={() => setShowQRModal(true)} className="flex items-center gap-1.5 rounded-lg h-9 px-4 bg-card border border-card-border text-text-primary text-sm hover:bg-card-sub-bg transition-colors">
+                <span className="material-symbols-outlined text-base">qr_code_2</span>
+              </button>
+            </Tooltip>
+            <Tooltip content="링크 복사">
+              <button onClick={() => handleShare(isExpertView)} className="flex items-center gap-1.5 rounded-lg h-9 px-4 bg-card border border-card-border text-text-primary text-sm hover:bg-card-sub-bg transition-colors">
+                <span className="material-symbols-outlined text-base">share</span>
+              </button>
+            </Tooltip>
+            <Tooltip content="JSON으로 내보내기">
+              <button onClick={handleExportJson} className="flex items-center gap-1.5 rounded-lg h-9 px-4 bg-card border border-card-border text-text-primary text-sm hover:bg-card-sub-bg transition-colors">
+                <span className="material-symbols-outlined text-base">data_object</span>
+              </button>
+            </Tooltip>
+            <Tooltip content="PDF로 다운로드">
+              <button onClick={() => handleDownloadPdf(isExpertView)} className="flex items-center gap-1.5 rounded-lg h-9 px-4 bg-primary text-white text-sm hover:bg-primary-hover transition-colors">
+                <span className="material-symbols-outlined text-base">download</span>
+                <span className="hidden sm:inline">PDF</span>
+              </button>
+            </Tooltip>
           </div>
         </section>
 
         {isExpertView ? (<ExpertView report={report} />) : (
           <>
+            {/* 위험도 게이지 */}
+            <RiskGauge highCount={highCount} mediumCount={mediumCount} lowCount={lowCount} />
+
             {/* 요약 대시보드 */}
             <section className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className={`rounded-xl p-4 ${highCount > 0 ? 'bg-red-500/10 border border-red-500/30' : 'bg-card border border-card-border'}`}>
@@ -263,6 +323,18 @@ const ReportPage: React.FC = () => {
 
               {showOcrText && (
                 <div className="px-5 pb-5">
+                  <div className="flex justify-end mb-2">
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(report.ocrText);
+                        showToast('success', 'OCR 텍스트가 복사되었습니다.');
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-primary bg-card border border-card-border rounded-lg hover:border-primary transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-sm">content_copy</span>
+                      복사
+                    </button>
+                  </div>
                   <div className="max-h-64 overflow-y-auto bg-card-sub-bg p-4 rounded-lg font-mono text-xs leading-relaxed text-text-secondary whitespace-pre-wrap">
                     {report.ocrText}
                   </div>
@@ -311,6 +383,15 @@ const ReportPage: React.FC = () => {
                       </p>
                       <p className="text-sm text-text-primary">{report.marketing.buyerPitch}</p>
                     </div>
+                  </div>
+
+                  {/* 소셜 공유 */}
+                  <div className="pt-4 border-t border-primary/20">
+                    <SocialShare
+                      url={window.location.href}
+                      title={`K-Food Export Passport - ${countryLabels[report.country]} 수출 분석 리포트`}
+                      description={report.marketing.localizedDescription}
+                    />
                   </div>
                 </div>
               </section>

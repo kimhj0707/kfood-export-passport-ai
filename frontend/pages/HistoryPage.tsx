@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { getHistory, deleteReport, HistoryFilters, linkEmail, getUser, unlinkEmail } from '../services/api';
 import { AnalysisReport } from '../types';
 import { useToast } from '../contexts/ToastContext';
+import { HistoryListSkeleton } from '../components/Skeleton';
+import StatsDashboard from '../components/StatsDashboard';
 
 const ITEMS_PER_PAGE = 9;
 
@@ -190,7 +192,7 @@ const HistoryPage: React.FC = () => {
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-1">대상 국가</label>
                 <select value={filterCountry} onChange={(e) => setFilterCountry(e.target.value)} className="w-full rounded-lg border border-card-border bg-card-sub-bg text-text-primary py-2 px-3 text-sm focus:border-primary focus:ring-0">
-                  <option value="">전체</option><option value="US">미국</option><option value="JP">일본</option><option value="VN">베트남</option><option value="EU">유럽연합</option><option value="CN">중국</option>
+                  <option value="">전체</option><option value="US">🇺🇸 미국</option><option value="JP">🇯🇵 일본</option><option value="VN">🇻🇳 베트남</option><option value="EU">🇪🇺 유럽연합</option><option value="CN">🇨🇳 중국</option>
                 </select>
               </div>
               <div>
@@ -214,18 +216,27 @@ const HistoryPage: React.FC = () => {
               )}
           </div>
         )}
-        
+
+        {/* 통계 대시보드 */}
+        {userEmail && !loading && history.length > 0 && (
+          <StatsDashboard reports={history} total={total} />
+        )}
+
         {userEmail && (loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
-              <div key={i} className="rounded-2xl bg-card border border-card-border p-6 animate-pulse h-48"></div>
-            ))}
-          </div>
+          <HistoryListSkeleton count={ITEMS_PER_PAGE} />
         ) : loadError ? (
-          <div className="text-center py-20 bg-card rounded-2xl">
-            <span className="material-symbols-outlined text-5xl text-red-500">cloud_off</span>
-            <p className="mt-4 text-lg text-text-secondary">데이터를 불러오는 데 실패했습니다.</p>
-            <button onClick={() => loadHistory(currentPage)} className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors"><span className="material-symbols-outlined text-sm">refresh</span>다시 시도</button>
+          <div className="text-center py-16 bg-card rounded-2xl border border-card-border">
+            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-red-500/10 flex items-center justify-center">
+              <span className="material-symbols-outlined text-5xl text-red-500">cloud_off</span>
+            </div>
+            <h3 className="text-xl font-bold text-text-primary mb-2">연결에 문제가 발생했습니다</h3>
+            <p className="text-text-secondary mb-6 max-w-sm mx-auto">
+              네트워크 연결을 확인하고<br />다시 시도해 주세요.
+            </p>
+            <button onClick={() => loadHistory(currentPage)} className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-hover transition-all hover:scale-105 font-bold">
+              <span className="material-symbols-outlined text-base">refresh</span>
+              다시 시도
+            </button>
           </div>
         ) : history.length > 0 ? (
           <>
@@ -269,10 +280,18 @@ const HistoryPage: React.FC = () => {
             )}
           </>
         ) : (
-          <div className="text-center py-20 bg-card rounded-2xl">
-            <span className="material-symbols-outlined text-5xl text-text-muted">search_off</span>
-            <p className="mt-4 text-lg text-text-secondary">분석 내역이 없습니다.</p>
-            <button onClick={() => navigate('/analyze')} className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors font-bold"><span className="material-symbols-outlined text-base">add</span>새 분석 시작</button>
+          <div className="text-center py-16 bg-card rounded-2xl border border-card-border">
+            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
+              <span className="material-symbols-outlined text-5xl text-primary">inventory_2</span>
+            </div>
+            <h3 className="text-xl font-bold text-text-primary mb-2">아직 분석 내역이 없습니다</h3>
+            <p className="text-text-secondary mb-6 max-w-sm mx-auto">
+              첫 번째 식품 라벨을 업로드하고<br />AI 분석 결과를 확인해 보세요!
+            </p>
+            <button onClick={() => navigate('/analyze')} className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-hover transition-all hover:scale-105 font-bold shadow-lg shadow-primary/25">
+              <span className="material-symbols-outlined text-base">add_circle</span>
+              첫 분석 시작하기
+            </button>
           </div>
         ))}
       </main>

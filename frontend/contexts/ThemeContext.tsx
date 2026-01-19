@@ -6,6 +6,7 @@ interface ThemeContextType {
   theme: Theme;
   toggleTheme: () => void;
   isDark: boolean;
+  isTransitioning: boolean;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -32,14 +33,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // 기본 테마를 'light'로 설정
     return 'light';
   });
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     const root = window.document.documentElement;
-    
+
     // 이전 테마 클래스 제거
     const oldTheme = theme === 'light' ? 'dark' : 'light';
     root.classList.remove(oldTheme);
-    
+
     // 현재 테마 클래스 추가
     root.classList.add(theme);
 
@@ -48,11 +50,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [theme]);
 
   const toggleTheme = () => {
+    setIsTransitioning(true);
     setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+    setTimeout(() => setIsTransitioning(false), 500);
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, isDark: theme === 'dark' }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, isDark: theme === 'dark', isTransitioning }}>
       {children}
     </ThemeContext.Provider>
   );

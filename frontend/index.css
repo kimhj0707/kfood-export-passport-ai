@@ -55,7 +55,82 @@
 body {
     background-color: rgb(var(--color-background));
     color: rgb(var(--color-text-primary));
-    transition: background-color 0.3s, color 0.3s;
+    transition: background-color 0.4s ease, color 0.3s ease;
+}
+
+/* 테마 전환 애니메이션 */
+@keyframes theme-spin {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.2);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+.animate-theme-spin {
+  animation: theme-spin 0.5s ease-in-out;
+}
+
+/* 카드, 배경 등 테마 전환시 부드러운 효과 */
+.bg-card,
+.bg-card-sub-bg,
+.bg-background,
+.border-card-border {
+  transition: background-color 0.4s ease, border-color 0.4s ease;
+}
+
+/* 스켈레톤 애니메이션 */
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes skeleton-wave {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-skeleton-pulse {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.animate-skeleton-wave {
+  background: linear-gradient(
+    90deg,
+    rgb(var(--color-card-sub-bg)) 25%,
+    rgb(var(--color-card-border)) 50%,
+    rgb(var(--color-card-sub-bg)) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-wave 1.5s ease-in-out infinite;
+}
+
+/* 페이지 전환 애니메이션 */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-enter {
+  animation: page-enter 0.3s ease-out;
 }
 
 @keyframes blob {
@@ -79,4 +154,159 @@ body {
 .animate-progress-shine {
   background-size: 200% auto;
   animation: progress-shine 2s linear infinite;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.animate-confetti-fall {
+  animation: confetti-fall 3s ease-out forwards;
+}
+
+@keyframes success-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+.animate-success-pulse {
+  animation: success-pulse 0.6s ease-in-out;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.2s ease-out;
+}
+
+/* 인쇄 스타일 */
+@media print {
+  /* 기본 설정 */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+  }
+
+  /* 헤더, 푸터, 버튼 숨기기 */
+  header,
+  footer,
+  .no-print,
+  button:not(.print-show) {
+    display: none !important;
+  }
+
+  /* 페이지 여백 설정 */
+  @page {
+    margin: 1.5cm;
+    size: A4;
+  }
+
+  /* 카드 스타일 최적화 */
+  .bg-card {
+    background: white !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: none !important;
+  }
+
+  /* 배경색 제거 */
+  .bg-background,
+  .bg-card-sub-bg {
+    background: white !important;
+  }
+
+  /* 텍스트 색상 */
+  .text-text-primary {
+    color: #1e293b !important;
+  }
+
+  .text-text-secondary,
+  .text-text-muted {
+    color: #475569 !important;
+  }
+
+  /* 링크 표시 */
+  a[href]:after {
+    content: " (" attr(href) ")";
+    font-size: 10pt;
+    color: #64748b;
+  }
+
+  /* 페이지 나눔 방지 */
+  section {
+    page-break-inside: avoid;
+  }
+
+  h1, h2, h3, h4 {
+    page-break-after: avoid;
+  }
+
+  /* 테이블 최적화 */
+  table {
+    border-collapse: collapse;
+  }
+
+  /* 컬러 태그 유지 */
+  .bg-red-500\/10 {
+    background-color: #fee2e2 !important;
+  }
+
+  .bg-amber-500\/10 {
+    background-color: #fef3c7 !important;
+  }
+
+  .bg-emerald-500\/10 {
+    background-color: #d1fae5 !important;
+  }
+
+  .text-red-600,
+  .text-red-500 {
+    color: #dc2626 !important;
+  }
+
+  .text-amber-600,
+  .text-amber-500 {
+    color: #d97706 !important;
+  }
+
+  .text-emerald-600,
+  .text-emerald-500 {
+    color: #059669 !important;
+  }
 }

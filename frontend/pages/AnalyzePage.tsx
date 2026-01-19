@@ -5,6 +5,13 @@ import { analyzeLabel, getUser, linkEmail } from '../services/api';
 import { useToast } from '../contexts/ToastContext';
 import AnalysisProgress from '../components/AnalysisProgress';
 
+// 샘플 라벨 데이터
+const SAMPLE_LABELS = [
+  { id: 1, name: '신라면', path: '/samples/sample_label_1.svg', description: '라면 제품 라벨' },
+  { id: 2, name: '녹차 음료', path: '/samples/sample_label_2.svg', description: '음료 제품 라벨' },
+  { id: 3, name: '참치 김밥', path: '/samples/sample_label_3.svg', description: '알레르겐 포함 제품' },
+];
+
 const AnalyzePage: React.FC = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
@@ -14,6 +21,7 @@ const AnalyzePage: React.FC = () => {
   const [ocrEngine, setOcrEngine] = useState('google');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [showSamples, setShowSamples] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [emailInput, setEmailInput] = useState('');
@@ -38,8 +46,8 @@ const AnalyzePage: React.FC = () => {
 
   const handleFileSelect = (selectedFile: File) => {
     if (!selectedFile) return;
-    if (!['image/jpeg', 'image/png'].includes(selectedFile.type)) {
-      showToast('error', 'JPG 또는 PNG 파일만 업로드할 수 있습니다.');
+    if (!['image/jpeg', 'image/png', 'image/svg+xml'].includes(selectedFile.type)) {
+      showToast('error', 'JPG, PNG 또는 SVG 파일만 업로드할 수 있습니다.');
       return;
     }
     if (selectedFile.size > 10 * 1024 * 1024) {
@@ -90,6 +98,20 @@ const AnalyzePage: React.FC = () => {
     }
   };
 
+  const handleSampleSelect = async (sample: typeof SAMPLE_LABELS[0]) => {
+    try {
+      const response = await fetch(sample.path);
+      const blob = await response.blob();
+      const file = new File([blob], `${sample.name}.svg`, { type: 'image/svg+xml' });
+      setFile(file);
+      setPreview(sample.path);
+      setShowSamples(false);
+      showToast('success', `'${sample.name}' 샘플이 선택되었습니다.`);
+    } catch (error) {
+      showToast('error', '샘플 이미지를 불러오는데 실패했습니다.');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) {
@@ -132,7 +154,7 @@ const AnalyzePage: React.FC = () => {
             </div>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-text-primary">라벨 이미지 업로드 (JPG, PNG)</label>
+                <label className="text-sm font-bold text-text-primary">라벨 이미지 업로드 (JPG, PNG, SVG)</label>
                 {preview ? (
                   <div className="relative">
                     <div className="relative w-full rounded-xl overflow-hidden border-2 border-primary bg-card-sub-bg">
@@ -160,7 +182,47 @@ const AnalyzePage: React.FC = () => {
                     </div>
                   </div>
                 )}
-                <input ref={inputRef} id="fileInput" accept="image/jpeg,image/png" className="hidden" type="file" onChange={handleFileChange} />
+                <input ref={inputRef} id="fileInput" accept="image/jpeg,image/png,image/svg+xml" className="hidden" type="file" onChange={handleFileChange} />
+
+                {/* 샘플 라벨 버튼 */}
+                {!preview && (
+                  <div className="mt-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowSamples(!showSamples)}
+                      className="flex items-center gap-2 text-sm text-primary hover:text-primary-hover font-medium transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-lg">science</span>
+                      {showSamples ? '샘플 닫기' : '샘플 라벨로 테스트하기'}
+                      <span className="material-symbols-outlined text-sm">
+                        {showSamples ? 'expand_less' : 'expand_more'}
+                      </span>
+                    </button>
+
+                    {showSamples && (
+                      <div className="mt-3 grid grid-cols-3 gap-3">
+                        {SAMPLE_LABELS.map((sample) => (
+                          <button
+                            key={sample.id}
+                            type="button"
+                            onClick={() => handleSampleSelect(sample)}
+                            className="group flex flex-col items-center p-3 rounded-xl border border-card-border bg-card-sub-bg hover:border-primary hover:bg-primary/5 transition-all"
+                          >
+                            <div className="w-full aspect-[2/3] rounded-lg overflow-hidden bg-white border border-card-border mb-2">
+                              <img
+                                src={sample.path}
+                                alt={sample.name}
+                                className="w-full h-full object-contain"
+                              />
+                            </div>
+                            <span className="text-xs font-medium text-text-primary group-hover:text-primary">{sample.name}</span>
+                            <span className="text-[10px] text-text-muted">{sample.description}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -180,7 +242,7 @@ const AnalyzePage: React.FC = () => {
                   <div className="relative">
                     <select id="country" value={country} onChange={(e) => setCountry(e.target.value)}
                       className="block w-full rounded-lg border border-card-border bg-white dark:bg-slate-800 py-3 px-4 text-slate-900 dark:text-white focus:border-primary focus:ring-0 text-sm appearance-none cursor-pointer">
-                      <option value="US">미국 (USA)</option><option value="JP">일본 (Japan)</option><option value="VN">베트남 (Vietnam)</option><option value="EU">유럽연합 (EU)</option><option value="CN">중국 (China)</option>
+                      <option value="US">🇺🇸 미국 (USA)</option><option value="JP">🇯🇵 일본 (Japan)</option><option value="VN">🇻🇳 베트남 (Vietnam)</option><option value="EU">🇪🇺 유럽연합 (EU)</option><option value="CN">🇨🇳 중국 (China)</option>
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-text-muted"><span className="material-symbols-outlined">expand_more</span></div>
                   </div>

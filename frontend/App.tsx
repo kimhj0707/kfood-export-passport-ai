@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import AnalyzePage from './pages/AnalyzePage';
 import ReportPage from './pages/ReportPage';
@@ -12,7 +12,28 @@ import Footer from './components/Footer';
 import ToastContainer from './components/Toast';
 import { ToastProvider } from './contexts/ToastContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import GuideTour from './components/GuideTour';
+import KeyboardShortcuts from './components/KeyboardShortcuts';
 import { v4 as uuidv4 } from 'uuid';
+
+// 애니메이션 적용된 라우트
+const AnimatedRoutes: React.FC = () => {
+  const location = useLocation();
+
+  return (
+    <div key={location.pathname} className="animate-page-enter">
+      <Routes location={location}>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/analyze" element={<AnalyzePage />} />
+        <Route path="/reports/:id" element={<ReportPage />} />
+        <Route path="/history" element={<HistoryPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </div>
+  );
+};
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -33,19 +54,13 @@ const App: React.FC = () => {
         <div className="flex flex-col min-h-screen w-full overflow-hidden">
           <Header />
           <main className="flex-grow">
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/analyze" element={<AnalyzePage />} />
-              <Route path="/reports/:id" element={<ReportPage />} />
-              <Route path="/history" element={<HistoryPage />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-              <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
+            <AnimatedRoutes />
           </main>
           <Footer />
         </div>
         <ToastContainer />
+        <GuideTour />
+        <KeyboardShortcuts />
         </Router>
       </ToastProvider>
     </ThemeProvider>

@@ -5,7 +5,7 @@ import Logo from "./Logo.svg?react";
 
 const Header: React.FC = () => {
   const location = useLocation();
-  const { isDark, toggleTheme } = useTheme();
+  const { isDark, toggleTheme, isTransitioning } = useTheme();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-solid border-card-border bg-background/95 backdrop-blur-md px-3 sm:px-4 md:px-10 lg:px-40 py-2 sm:py-3 pt-[max(0.5rem,env(safe-area-inset-top))]">
@@ -45,10 +45,12 @@ const Header: React.FC = () => {
           </Link>
           <button
             onClick={toggleTheme}
-            className="p-1.5 sm:p-2 rounded-lg hover:bg-card-sub-bg transition-colors ml-1"
+            className="p-1.5 sm:p-2 rounded-lg hover:bg-card-sub-bg transition-colors ml-1 relative overflow-hidden"
             aria-label="테마 변경"
           >
-            <span className="material-symbols-outlined text-lg sm:text-xl text-text-secondary">
+            <span
+              className={`material-symbols-outlined text-lg sm:text-xl text-text-secondary transition-transform duration-300 ${isTransitioning ? 'animate-theme-spin' : ''}`}
+            >
               {isDark ? "light_mode" : "dark_mode"}
             </span>
           </button>

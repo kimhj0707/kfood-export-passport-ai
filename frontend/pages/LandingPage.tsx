@@ -1,24 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { getHistory } from "../services/api";
-import { AnalysisReport } from "../types";
-import HeroVisual from "../components/HeroVisual.svg?react";
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const [recentReports, setRecentReports] = useState<AnalysisReport[]>([]);
-
-  useEffect(() => {
-    const fetchRecentReports = async () => {
-      try {
-        const { reports } = await getHistory(5, 0);
-        setRecentReports(reports);
-      } catch (error) {
-        console.error("Failed to fetch recent reports:", error);
-      }
-    };
-    fetchRecentReports();
-  }, []);
 
   return (
     <div className="w-full bg-background text-text-primary">
@@ -210,44 +194,6 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Recent Reports Section */}
-      {recentReports.length > 0 && (
-        <section className="w-full py-20 px-4">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex justify-between items-center mb-8">
-              <h3 className="text-text-primary text-3xl font-bold">
-                최근 분석 리포트
-              </h3>
-              <button
-                onClick={() => navigate("/history")}
-                className="text-primary font-bold flex items-center gap-1 hover:underline"
-              >
-                <span>모두 보기</span>
-                <span className="material-symbols-outlined">arrow_forward</span>
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recentReports.map((report) => (
-                <div
-                  key={report.id}
-                  onClick={() => navigate(`/reports/${report.id}`)}
-                  className="p-6 rounded-xl border border-card-border bg-card shadow-lg dark:backdrop-blur-md transition-all cursor-pointer group hover:bg-card-sub-bg hover:border-primary"
-                >
-                  <p className="font-bold text-lg text-text-primary group-hover:text-primary">
-                    Report #{report.id}
-                  </p>
-                  <p className="text-sm text-text-secondary mt-2">
-                    Country: {report.country}
-                  </p>
-                  <p className="text-sm text-text-secondary">
-                    Created: {new Date(report.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
     </div>
   );
 };
