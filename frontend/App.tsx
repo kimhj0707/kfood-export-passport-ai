@@ -20,6 +20,11 @@ import { v4 as uuidv4 } from 'uuid';
 const AnimatedRoutes: React.FC = () => {
   const location = useLocation();
 
+  // 페이지 전환 시 스크롤을 맨 위로 이동
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   return (
     <div key={location.pathname} className="animate-page-enter">
       <Routes location={location}>

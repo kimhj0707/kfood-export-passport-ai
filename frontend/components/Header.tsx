@@ -1,7 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
-import Logo from "./Logo.svg?react";
 
 interface HeaderProps {
   onOpenGuide: () => void;
@@ -17,7 +16,11 @@ const Header: React.FC<HeaderProps> = ({ onOpenGuide }) => {
         {/* 로고 */}
         <Link to="/" className="flex-shrink-0">
           <div className="flex items-center gap-2">
-            <Logo className="w-7 h-7 sm:w-8 sm:h-8 text-text-primary" />
+            <img
+              src={isDark ? "/darkLogo.png" : "/lightLogo.png"}
+              alt="K-Food Logo"
+              className="w-7 h-7 sm:w-8 sm:h-8"
+            />
             <h2 className="text-text-primary text-sm sm:text-base font-bold whitespace-nowrap">
               <span className="sm:hidden">K-Food</span>
               <span className="hidden sm:inline">K-Food Export Passport</span>
