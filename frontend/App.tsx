@@ -10,8 +10,10 @@ import NotFoundPage from './pages/NotFoundPage';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ToastContainer from './components/Toast';
+import LoginModal from './components/LoginModal';
 import { ToastProvider } from './contexts/ToastContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { AuthProvider } from './contexts/AuthContext';
 import GuideTour from './components/GuideTour';
 import KeyboardShortcuts from './components/KeyboardShortcuts';
 import { v4 as uuidv4 } from 'uuid';
@@ -42,6 +44,7 @@ const AnimatedRoutes: React.FC = () => {
 
 const App: React.FC = () => {
   const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
 
   useEffect(() => {
     let userId = localStorage.getItem('user_id');
@@ -56,23 +59,28 @@ const App: React.FC = () => {
 
   const handleOpenGuide = () => setIsGuideOpen(true);
   const handleCloseGuide = () => setIsGuideOpen(false);
+  const handleOpenLogin = () => setIsLoginOpen(true);
+  const handleCloseLogin = () => setIsLoginOpen(false);
 
   return (
     <ThemeProvider>
-      <ToastProvider>
-        <Router>
-        <div className="flex flex-col min-h-screen w-full overflow-hidden">
-          <Header onOpenGuide={handleOpenGuide} />
-          <main className="flex-grow">
-            <AnimatedRoutes />
-          </main>
-          <Footer />
-        </div>
-        <ToastContainer />
-        <GuideTour isOpen={isGuideOpen} onClose={handleCloseGuide} />
-        <KeyboardShortcuts />
-        </Router>
-      </ToastProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <Router>
+            <div className="flex flex-col min-h-screen w-full overflow-hidden">
+              <Header onOpenGuide={handleOpenGuide} onOpenLogin={handleOpenLogin} />
+              <main className="flex-grow">
+                <AnimatedRoutes />
+              </main>
+              <Footer />
+            </div>
+            <ToastContainer />
+            <LoginModal isOpen={isLoginOpen} onClose={handleCloseLogin} />
+            <GuideTour isOpen={isGuideOpen} onClose={handleCloseGuide} />
+            <KeyboardShortcuts />
+          </Router>
+        </ToastProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 };

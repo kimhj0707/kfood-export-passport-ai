@@ -108,6 +108,43 @@ async def api_unlink_email(user_id: str):
         raise HTTPException(status_code=500, detail=f"이메일 연결 해제 중 오류 발생: {str(e)}")
 
 
+@app.post("/api/users/login-by-email")
+async def api_login_by_email(
+    email: str = Form(..., description="로그인할 이메일 주소")
+):
+    """
+    이메일로 로그인 (비밀번호 없음)
+    - 이메일이 등록되어 있으면 해당 user_id 반환
+    - 등록되어 있지 않으면 새 user_id 생성 후 반환
+    """
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+        raise HTTPException(status_code=400, detail="유효하지 않은 이메일 형식입니다.")
+
+    try:
+        # 이메일로 기존 사용자 조회
+        existing_user = get_user_by_email(email)
+
+        if existing_user:
+            # 기존 사용자 반환
+            return {
+                "user_id": existing_user["id"],
+                "email": email,
+                "is_new_user": False
+            }
+        else:
+            # 새 사용자 생성
+            new_user_id = uuid.uuid4().hex
+            upsert_user_email(new_user_id, email)
+            return {
+                "user_id": new_user_id,
+                "email": email,
+                "is_new_user": True
+            }
+    except Exception as e:
+        print(f"Error in api_login_by_email: {e}")
+        raise HTTPException(status_code=500, detail=f"로그인 중 서버 오류 발생: {str(e)}")
+
+
 # =============================================================================
 # 분석 API (신규: DB 저장 + report_id 발급)
 # =============================================================================

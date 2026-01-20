@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getHistory, deleteReport, HistoryFilters, linkEmail, getUser, unlinkEmail } from '../services/api';
+import { getHistory, deleteReport, HistoryFilters } from '../services/api';
 import { AnalysisReport } from '../types';
 import { useToast } from '../contexts/ToastContext';
+import { useAuth } from '../contexts/AuthContext';
 import { HistoryListSkeleton } from '../components/Skeleton';
 import StatsDashboard from '../components/StatsDashboard';
 
@@ -11,6 +12,7 @@ const ITEMS_PER_PAGE = 9;
 const HistoryPage: React.FC = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { user, isLoggedIn, logout } = useAuth();
   const [history, setHistory] = useState<AnalysisReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
@@ -18,28 +20,13 @@ const HistoryPage: React.FC = () => {
   const [total, setTotal] = useState(0);
   const [deleting, setDeleting] = useState<string | null>(null);
 
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [showEmailModal, setShowEmailModal] = useState(false);
-  const [emailInput, setEmailInput] = useState('');
-  const [isLinking, setIsLinking] = useState(false);
-
   const [filterCountry, setFilterCountry] = useState<string>('');
   const [filterDateFrom, setFilterDateFrom] = useState<string>('');
   const [filterDateTo, setFilterDateTo] = useState<string>('');
   const [showFilters, setShowFilters] = useState(false);
 
-  useEffect(() => {
-    const fetchUserEmail = async () => {
-      const userId = localStorage.getItem('user_id');
-      if (userId) {
-        const { email } = await getUser(userId);
-        setUserEmail(email);
-      }
-    };
-    fetchUserEmail();
-  }, []);
-
   const loadHistory = useCallback(async (page: number) => {
+    if (!isLoggedIn) return;
     setLoading(true);
     setLoadError(false);
     try {
@@ -57,14 +44,16 @@ const HistoryPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [filterCountry, filterDateFrom, filterDateTo, showToast]);
+  }, [filterCountry, filterDateFrom, filterDateTo, showToast, isLoggedIn]);
 
   useEffect(() => {
-    // 이메일이 연결된 경우에만 히스토리 로드
-    if (userEmail) {
+    // 로그인된 경우에만 히스토리 로드
+    if (isLoggedIn) {
       loadHistory(currentPage);
+    } else {
+      setLoading(false);
     }
-  }, [currentPage, loadHistory, userEmail]);
+  }, [currentPage, loadHistory, isLoggedIn]);
 
   const handleApplyFilters = () => {
     setCurrentPage(0);
@@ -105,31 +94,10 @@ const HistoryPage: React.FC = () => {
     }
   };
 
-  const handleLinkEmail = async () => {
-    const userId = localStorage.getItem('user_id');
-    if (!userId || !emailInput) return;
-    setIsLinking(true);
-    try {
-      await linkEmail(userId, emailInput);
-      setUserEmail(emailInput);
-      setShowEmailModal(false);
-      showToast('success', '이메일이 성공적으로 연결되었습니다.');
-    } catch (error) {
-      showToast('error', (error as Error).message);
-    } finally {
-      setIsLinking(false);
-    }
-  };
-
-  const handleUnlinkEmail = async () => {
-    const userId = localStorage.getItem('user_id');
-    if (!userId || !confirm('이메일 연결을 해제하시겠습니까?')) return;
-    try {
-      await unlinkEmail(userId);
-      setUserEmail(null);
-      showToast('success', '이메일 연결이 해제되었습니다.');
-    } catch (error) {
-      showToast('error', (error as Error).message);
+  const handleLogout = () => {
+    if (confirm('로그아웃 하시겠습니까?')) {
+      logout();
+      showToast('success', '로그아웃 되었습니다.');
     }
   };
 
@@ -143,12 +111,12 @@ const HistoryPage: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div className="flex flex-col gap-2">
             <h1 className="text-text-primary text-3xl font-black tracking-tight leading-tight">내 분석 이력</h1>
-            <p className="text-text-secondary text-lg">{userEmail ? `연결된 계정: ${userEmail}` : '이메일을 입력하여 분석 이력을 확인하세요.'}</p>
+            <p className="text-text-secondary text-lg">{isLoggedIn ? `연결된 계정: ${user?.email}` : '로그인하여 분석 이력을 확인하세요.'}</p>
           </div>
-          {userEmail && (
+          {isLoggedIn && (
             <div className="flex flex-wrap items-center gap-3">
-              <button onClick={handleUnlinkEmail} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-500/30 text-red-500 dark:text-red-400 hover:bg-red-500/10 transition-colors">
-                <span className="material-symbols-outlined text-sm">link_off</span><span className="font-medium text-sm">이메일 연결 해제</span>
+              <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-500/30 text-red-500 dark:text-red-400 hover:bg-red-500/10 transition-colors">
+                <span className="material-symbols-outlined text-sm">logout</span><span className="font-medium text-sm">로그아웃</span>
               </button>
               <button onClick={() => setShowFilters(!showFilters)} className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${hasActiveFilters ? 'border-primary bg-primary/10 text-primary' : 'border-card-border hover:bg-card-sub-bg text-text-secondary'}`}>
                 <span className="material-symbols-outlined text-sm">filter_list</span><span className="font-medium text-sm">필터</span>
@@ -158,34 +126,26 @@ const HistoryPage: React.FC = () => {
           )}
         </div>
 
-        {!userEmail && (
+        {!isLoggedIn && (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="bg-card border border-card-border rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
-              <span className="material-symbols-outlined text-6xl text-primary mb-4">mail</span>
-              <h2 className="text-2xl font-bold text-text-primary mb-2">이메일로 로그인하세요</h2>
+              <span className="material-symbols-outlined text-6xl text-primary mb-4">lock</span>
+              <h2 className="text-2xl font-bold text-text-primary mb-2">로그인이 필요합니다</h2>
               <p className="text-text-secondary mb-6 leading-relaxed">
-                이메일을 입력하면 분석 이력을 조회하고 여러 기기에서 동기화할 수 있습니다.
+                분석 이력을 확인하려면 먼저 로그인해 주세요.<br />
+                헤더의 로그인 버튼을 클릭하세요.
               </p>
-              <input
-                type="email"
-                placeholder="user@example.com"
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                className="w-full rounded-lg border border-card-border bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 py-3 px-4 text-sm mb-4 focus:border-primary focus:ring-0"
-              />
               <button
-                onClick={handleLinkEmail}
-                disabled={isLinking || !emailInput}
-                className="w-full bg-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => navigate('/analyze')}
+                className="w-full bg-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-primary-hover transition-colors"
               >
-                {isLinking ? '연결 중...' : '이메일로 계속하기'}
+                분석 페이지로 이동
               </button>
-              <p className="text-xs text-text-muted mt-4">🔒 비밀번호 없이 이메일만으로 이력을 관리합니다.</p>
             </div>
           </div>
         )}
 
-        {userEmail && showFilters && (
+        {isLoggedIn && showFilters && (
           <div className="bg-card border border-card-border rounded-2xl p-4 mb-8 shadow-md">
             <h3 className="text-lg font-bold text-text-primary mb-4">필터 설정</h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -218,11 +178,11 @@ const HistoryPage: React.FC = () => {
         )}
 
         {/* 통계 대시보드 */}
-        {userEmail && !loading && history.length > 0 && (
+        {isLoggedIn && !loading && history.length > 0 && (
           <StatsDashboard reports={history} total={total} />
         )}
 
-        {userEmail && (loading ? (
+        {isLoggedIn && (loading ? (
           <HistoryListSkeleton count={ITEMS_PER_PAGE} />
         ) : loadError ? (
           <div className="text-center py-16 bg-card rounded-2xl border border-card-border">
@@ -295,25 +255,6 @@ const HistoryPage: React.FC = () => {
           </div>
         ))}
       </main>
-
-      {showEmailModal && (
-        <div className="fixed inset-0 bg-black/50 dark:bg-slate-900/80 backdrop-blur-lg flex items-center justify-center z-50">
-          <div className="bg-card border border-card-border rounded-2xl shadow-2xl w-full max-w-md m-4">
-            <div className="p-6">
-              <h2 className="text-xl font-bold text-text-primary mb-2">이메일로 계속하기</h2>
-              <p className="text-sm text-text-secondary mb-4">이메일을 입력하시면 분석 이력을 여러 기기에서 동기화할 수 있습니다.</p>
-              <input type="email" placeholder="user@example.com" value={emailInput} onChange={(e) => setEmailInput(e.target.value)} className="w-full rounded-lg border border-card-border bg-card-sub-bg text-text-primary py-2 px-3 text-sm mb-4 focus:border-primary focus:ring-0" />
-              <p className="text-xs text-text-muted mb-4">🔒 비밀번호를 저장하지 않으며, 이메일은 분석 이력을 식별하는 용도로만 사용됩니다.</p>
-              <div className="flex justify-end gap-3">
-                <button onClick={() => setShowEmailModal(false)} className="py-2 px-4 rounded-lg text-sm font-medium border border-card-border bg-card hover:bg-card-sub-bg text-text-secondary transition-colors">취소</button>
-                <button onClick={handleLinkEmail} disabled={isLinking} className="bg-primary text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-primary-hover transition-colors disabled:opacity-50">
-                  {isLinking ? '연결 중...' : '이메일 연결'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

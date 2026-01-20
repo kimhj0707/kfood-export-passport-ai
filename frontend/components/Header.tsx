@@ -1,14 +1,17 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
+import { useAuth } from "../contexts/AuthContext";
 
 interface HeaderProps {
   onOpenGuide: () => void;
+  onOpenLogin: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onOpenGuide }) => {
+const Header: React.FC<HeaderProps> = ({ onOpenGuide, onOpenLogin }) => {
   const location = useLocation();
   const { isDark, toggleTheme, isTransitioning } = useTheme();
+  const { user, isLoggedIn, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-solid border-card-border bg-background/95 backdrop-blur-md px-3 sm:px-4 md:px-10 lg:px-40 py-2 sm:py-3 pt-[max(0.5rem,env(safe-area-inset-top))]">
@@ -57,6 +60,26 @@ const Header: React.FC<HeaderProps> = ({ onOpenGuide }) => {
           >
             가이드
           </button>
+          {isLoggedIn ? (
+            <div className="flex items-center gap-2">
+              <span className="hidden sm:inline text-xs text-text-muted truncate max-w-[120px]">
+                {user?.email}
+              </span>
+              <button
+                onClick={logout}
+                className="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold text-text-secondary hover:bg-card-sub-bg transition-colors"
+              >
+                로그아웃
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={onOpenLogin}
+              className="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold text-text-secondary hover:bg-card-sub-bg transition-colors"
+            >
+              로그인
+            </button>
+          )}
           <button
             onClick={toggleTheme}
             className="p-1.5 sm:p-2 rounded-lg hover:bg-card-sub-bg transition-colors relative overflow-hidden"
