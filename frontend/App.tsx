@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import AnalyzePage from './pages/AnalyzePage';
@@ -36,6 +36,8 @@ const AnimatedRoutes: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
+
   useEffect(() => {
     let userId = localStorage.getItem('user_id');
     if (!userId) {
@@ -47,19 +49,22 @@ const App: React.FC = () => {
     }
   }, []);
 
+  const handleOpenGuide = () => setIsGuideOpen(true);
+  const handleCloseGuide = () => setIsGuideOpen(false);
+
   return (
     <ThemeProvider>
       <ToastProvider>
         <Router>
         <div className="flex flex-col min-h-screen w-full overflow-hidden">
-          <Header />
+          <Header onOpenGuide={handleOpenGuide} />
           <main className="flex-grow">
             <AnimatedRoutes />
           </main>
           <Footer />
         </div>
         <ToastContainer />
-        <GuideTour />
+        <GuideTour isOpen={isGuideOpen} onClose={handleCloseGuide} />
         <KeyboardShortcuts />
         </Router>
       </ToastProvider>

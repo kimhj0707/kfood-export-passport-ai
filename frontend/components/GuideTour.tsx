@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 interface TourStep {
@@ -8,6 +8,11 @@ interface TourStep {
   target?: string; // CSS selector for highlighting
   position: 'top' | 'bottom' | 'left' | 'right' | 'center';
   route?: string; // Route to navigate to
+}
+
+interface GuideTourProps {
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 const TOUR_STEPS: TourStep[] = [
@@ -46,21 +51,17 @@ const TOUR_STEPS: TourStep[] = [
   },
 ];
 
-const GuideTour: React.FC = () => {
-  const [isActive, setIsActive] = useState(false);
+const GuideTour: React.FC<GuideTourProps> = ({ isOpen, onClose }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // 첫 방문 여부 확인
-    const hasSeenTour = localStorage.getItem('guide_tour_completed');
-    if (!hasSeenTour && location.pathname === '/') {
-      // 첫 방문 시 약간의 딜레이 후 투어 시작
-      const timer = setTimeout(() => setIsActive(true), 1000);
-      return () => clearTimeout(timer);
+  // 가이드가 열릴 때마다 첫 단계로 초기화
+  React.useEffect(() => {
+    if (isOpen) {
+      setCurrentStep(0);
     }
-  }, [location.pathname]);
+  }, [isOpen]);
 
   const handleNext = () => {
     const nextStep = currentStep + 1;
@@ -87,18 +88,16 @@ const GuideTour: React.FC = () => {
   };
 
   const handleSkip = () => {
-    localStorage.setItem('guide_tour_completed', 'true');
-    setIsActive(false);
+    onClose();
     navigate('/');
   };
 
   const handleComplete = () => {
-    localStorage.setItem('guide_tour_completed', 'true');
-    setIsActive(false);
+    onClose();
     navigate('/analyze');
   };
 
-  if (!isActive) return null;
+  if (!isOpen) return null;
 
   const step = TOUR_STEPS[currentStep];
   const isLastStep = currentStep === TOUR_STEPS.length - 1;

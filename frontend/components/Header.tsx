@@ -3,7 +3,11 @@ import { Link, useLocation } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import Logo from "./Logo.svg?react";
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  onOpenGuide: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onOpenGuide }) => {
   const location = useLocation();
   const { isDark, toggleTheme, isTransitioning } = useTheme();
 
@@ -44,8 +48,15 @@ const Header: React.FC = () => {
             기록
           </Link>
           <button
+            onClick={onOpenGuide}
+            className="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold text-text-secondary hover:bg-card-sub-bg transition-colors"
+            aria-label="가이드"
+          >
+            가이드
+          </button>
+          <button
             onClick={toggleTheme}
-            className="p-1.5 sm:p-2 rounded-lg hover:bg-card-sub-bg transition-colors ml-1 relative overflow-hidden"
+            className="p-1.5 sm:p-2 rounded-lg hover:bg-card-sub-bg transition-colors relative overflow-hidden"
             aria-label="테마 변경"
           >
             <span
